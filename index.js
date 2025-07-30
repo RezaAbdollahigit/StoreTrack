@@ -50,12 +50,23 @@ app.post('/products', async (req, res) => {
   }
 });
 
-// مسیر API برای خواندن تمام محصولات به همراه دسته‌بندی آنها
+// مسیر API برای خواندن تمام محصولات با قابلیت فیلتر بر اساس دسته‌بندی
 app.get('/products', async (req, res) => {
   try {
-    const products = await Product.findAll({ include: 'category' });
+    const { categoryId } = req.query;
+    const whereClause = {};
+
+    if (categoryId) {
+      whereClause.categoryId = categoryId;
+    }
+
+    const products = await Product.findAll({
+      where: whereClause,
+      include: 'category'
+    });
+    
     return res.json(products);
-  } catch (error) {
+  } catch (error) { 
     console.error('Error fetching products:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
