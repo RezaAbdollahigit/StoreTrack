@@ -1,4 +1,5 @@
 const express = require('express');
+const { Op } = require('sequelize');
 const { sequelize, Category, Product, Order, OrderItem, StockMovement } = require('./models');
 const app = express();
 app.use(express.json());
@@ -147,6 +148,25 @@ app.post('/orders', async (req, res) => {
     await t.rollback();
     console.error('Error creating order:', error);
     return res.status(500).json({ error: error.message });
+  }
+});
+
+// مسیر API برای گزارش کالاهای با موجودی پایین
+app.get('/reports/low-stock', async (req, res) => {
+  try {
+    const LOW_STOCK_THRESHOLD = 10; 
+    const lowStockProducts = await Product.findAll({
+      where: {
+        stockQuantity: {
+          [Op.lte]: LOW_STOCK_THRESHOLD 
+        }
+      }
+    });
+
+    return res.json(lowStockProducts);
+  } catch (error) {
+    console.error('Error fetching low stock report:', error);
+    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
 });
 
