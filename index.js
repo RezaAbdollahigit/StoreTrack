@@ -52,13 +52,21 @@ app.post('/products', async (req, res) => {
 });
 
 // مسیر API برای خواندن تمام محصولات با قابلیت فیلتر بر اساس دسته‌بندی
+// مسیر API برای خواندن محصولات با قابلیت فیلتر و جستجو
 app.get('/products', async (req, res) => {
   try {
-    const { categoryId } = req.query;
+    const { categoryId, search } = req.query; 
     const whereClause = {};
 
     if (categoryId) {
       whereClause.categoryId = categoryId;
+    }
+
+    if (search) {
+      whereClause[Op.or] = [
+        { name: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } }
+      ];
     }
 
     const products = await Product.findAll({
@@ -67,7 +75,7 @@ app.get('/products', async (req, res) => {
     });
     
     return res.json(products);
-  } catch (error) { 
+  } catch (error) {
     console.error('Error fetching products:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
