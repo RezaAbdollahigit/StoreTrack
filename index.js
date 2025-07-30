@@ -186,6 +186,27 @@ app.get('/reports/sales', async (req, res) => {
   }
 });
 
+// مسیر API برای به‌روزرسانی وضعیت یک سفارش
+app.patch('/orders/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    const order = await Order.findByPk(id);
+    if (!order) {
+      return res.status(404).json({ error: 'سفارش یافت نشد' });
+    }
+
+    order.status = status;
+    await order.save();
+
+    return res.json(order);
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
