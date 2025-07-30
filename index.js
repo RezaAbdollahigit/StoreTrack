@@ -170,6 +170,22 @@ app.get('/reports/low-stock', async (req, res) => {
   }
 });
 
+// مسیر API برای گزارش فروش
+app.get('/reports/sales', async (req, res) => {
+  try {
+    const totalOrders = await Order.count();
+    const totalRevenue = await Order.sum('totalAmount');
+
+    res.json({
+      totalOrders: totalOrders,
+      totalRevenue: totalRevenue || 0 
+    });
+  } catch (error) {
+    console.error('Error fetching sales report:', error);
+    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
