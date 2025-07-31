@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import ProductCard from '../components/ProductCard'; 
+import ProductCard from '../components/ProductCard';
 
 interface Product {
   id: number;
@@ -16,7 +16,8 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/products');
+        // === این خط اصلاح شد ===
+        const response = await axios.get('http://localhost:3000/api/products');
         setProducts(response.data);
       } catch (error) {
         console.error("خطا در دریافت محصولات:", error);
@@ -26,7 +27,7 @@ const HomePage = () => {
     };
 
     fetchProducts();
-  }, []); 
+  }, []);
 
   if (loading) {
     return <p>در حال بارگذاری محصولات...</p>;
@@ -36,9 +37,13 @@ const HomePage = () => {
     <div>
       <h1>محصولات پرفروش</h1>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-        {products.map(product => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        {products.length === 0 ? (
+          <p>محصولی برای نمایش وجود ندارد.</p>
+        ) : (
+          products.map(product => (
+            <ProductCard key={product.id} product={product} />
+          ))
+        )}
       </div>
     </div>
   );
