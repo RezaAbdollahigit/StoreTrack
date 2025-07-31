@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion } from "framer-motion";
 import { signUp } from "../api/auth";
+import { AxiosError } from "axios"; 
 
 const SignUpSchema = z
   .object({
@@ -29,8 +30,13 @@ export default function SignUpForm() {
   const onSubmit = async (data: SignUpValues) => {
     try {
       await signUp(data.email, data.password);
-      // TODO: redirect or show success
+      alert("ثبت‌نام با موفقیت انجام شد! حالا می‌توانید وارد شوید.");
     } catch (err) {
+      if (err instanceof AxiosError && err.response) {
+        alert(`خطا: ${err.response.data.error}`);
+      } else {
+        alert("یک خطای پیش‌بینی نشده رخ داد.");
+      }
       console.error(err);
     }
   };
@@ -44,6 +50,7 @@ export default function SignUpForm() {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-4"
     >
+      {}
       <div>
         <label className="block text-sm font-medium mb-1">Email</label>
         <input
@@ -86,7 +93,7 @@ export default function SignUpForm() {
         disabled={isSubmitting}
         className="w-full py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400"
       >
-        {isSubmitting ? "Signing Up…" : "Sign Up"}
+        {isSubmitting ? "در حال ثبت‌نام..." : "ثبت‌نام"}
       </button>
     </motion.form>
   );
