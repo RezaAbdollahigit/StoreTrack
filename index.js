@@ -162,6 +162,44 @@ app.post('/orders', async (req, res) => {
   }
 });
 
+// مسیر API برای خواندن سفارشات با قابلیت جستجوی پیشرفته
+app.get('/orders', async (req, res) => {
+  try {
+    const { search, productName } = req.query;
+    const whereClause = {};
+    
+    const includeClause = [{
+      model: OrderItem,
+      as: 'items',
+      include: {
+        model: Product,
+        as: 'product'
+      }
+    }];
+
+    if (search) {
+      whereClause.customerName = { [Op.iLike]: `%${search}%` };
+    }
+
+    if (productName) {
+      includeClause[0].include.where = {
+        name: { [Op.iLike]: `%${productName}%` }
+      };
+      includeClause[0].required = true;
+    }
+
+    const orders = await Order.findAll({
+      where: whereClause,
+      include: includeClause
+    });
+
+    return res.json(orders);
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
+  }
+});
+
 // مسیر API برای گزارش کالاهای با موجودی پایین
 app.get('/reports/low-stock', async (req, res) => {
   try {
@@ -271,6 +309,19 @@ app.post('/login', async (req, res) => {
   } catch (error) {
     console.error('Error during login:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
+  }
+});
+
+// API برای گرفتن لیست تمام یوزرها
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.findAll({
+      attributes: { exclude: ['password'] }
+    });
+    res.json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return res.status(500).json({ error: 'An error occurred on the server' });
   }
 });
 
