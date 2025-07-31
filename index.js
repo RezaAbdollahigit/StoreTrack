@@ -1,6 +1,6 @@
 const express = require('express');
 const { Op } = require('sequelize');
-const { sequelize, Category, Product, Order, OrderItem, StockMovement } = require('./models');
+const { sequelize, Category, Product, Order, OrderItem, StockMovement, User } = require('./models');
 const app = express();
 app.use(express.json());
 
@@ -211,6 +211,33 @@ app.patch('/orders/:id', async (req, res) => {
     return res.json(order);
   } catch (error) {
     console.error('Error updating order status:', error);
+    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
+  }
+});
+
+// مسیر API برای ثبت‌نام کاربر جدید
+app.post('/register', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    if (!email || !password) {
+      return res.status(400).json({ error: 'ایمیل و پسورد اجباری هستند' });
+    }
+
+    const existingUser = await User.findOne({ where: { email } });
+    if (existingUser) {
+      return res.status(400).json({ error: 'کاربری با این ایمیل از قبل وجود دارد' });
+    }
+
+    const newUser = await User.create({ email, password });
+
+    return res.status(201).json({
+      id: newUser.id,
+      email: newUser.email
+    });
+
+  } catch (error) {
+    console.error('Error during registration:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
 });
