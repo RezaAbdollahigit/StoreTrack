@@ -2,6 +2,9 @@ const express = require('express');
 const { Op } = require('sequelize');
 const { sequelize, Category, Product, Order, OrderItem, StockMovement, User } = require('./models');
 const app = express();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'your-super-secret-key-12345';
 app.use(express.json());
 
 app.post('/categories', async (req, res) => {
@@ -238,6 +241,35 @@ app.post('/register', async (req, res) => {
 
   } catch (error) {
     console.error('Error during registration:', error);
+    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
+  }
+});
+
+// مسیر API برای ورود کاربر
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ error: 'ایمیل یا پسورد نامعتبر است' });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: 'ایمیل یا پسورد نامعتبر است' });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email }, 
+      JWT_SECRET,
+      { expiresIn: '1h' } 
+    );
+
+    return res.json({ message: 'ورود موفقیت‌آمیز بود', token });
+
+  } catch (error) {
+    console.error('Error during login:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
 });
