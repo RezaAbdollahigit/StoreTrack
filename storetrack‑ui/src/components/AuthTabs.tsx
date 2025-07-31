@@ -1,16 +1,30 @@
-import { Tab } from '@shadcn/ui'
-import { SignInForm } from './SignInForm'
-import { SignUpForm } from './SignUpForm'
+import { Tab } from "@headlessui/react";
+import SignInForm from "./SignInForm";
+import SignUpForm from "./SignUpForm";
 
 export function AuthTabs() {
   return (
-    <Tab.Root defaultValue="signin">
+    <Tab.Group>
       <Tab.List className="flex space-x-4 mb-6">
-        <Tab.Trigger value="signin">Sign In</Tab.Trigger>
-        <Tab.Trigger value="signup">Sign Up</Tab.Trigger>
+        <Tab as="button" className={({ selected }) =>
+            selected
+              ? "px-4 py-2 font-medium bg-indigo-500 text-white rounded"
+              : "px-4 py-2 font-medium bg-gray-200 rounded"
+          }>
+          Sign In
+        </Tab>
+        <Tab as="button" className={({ selected }) =>
+            selected
+              ? "px-4 py-2 font-medium bg-indigo-500 text-white rounded"
+              : "px-4 py-2 font-medium bg-gray-200 rounded"
+          }>
+          Sign Up
+        </Tab>
       </Tab.List>
-      <Tab.Content value="signin"><SignInForm /></Tab.Content>
-      <Tab.Content value="signup"><SignUpForm /></Tab.Content>
-    </Tab.Root>
-  )
+      <Tab.Panels>
+        <Tab.Panel><SignInForm /></Tab.Panel>
+        <Tab.Panel><SignUpForm /></Tab.Panel>
+      </Tab.Panels>
+    </Tab.Group>
+  );
 }

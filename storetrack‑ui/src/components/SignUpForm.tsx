@@ -1,14 +1,12 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Input } from "@shadcn/ui";
-import { Button } from "@shadcn/ui";
 import { motion } from "framer-motion";
-import { signUp } from "../api/auth"; 
+import { signUp } from "../api/auth";
 
 const SignUpSchema = z
   .object({
-    email: z.string().email("Invalid email"),
+    email: z.email("Invalid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
@@ -19,7 +17,7 @@ const SignUpSchema = z
 
 type SignUpValues = z.infer<typeof SignUpSchema>;
 
-export function SignUpForm() {
+export default function SignUpForm() {
   const {
     register,
     handleSubmit,
@@ -31,12 +29,13 @@ export function SignUpForm() {
   const onSubmit = async (data: SignUpValues) => {
     try {
       await signUp(data.email, data.password);
-      // TODO: Handle success (e.g. show toast, redirect)
+      // TODO: redirect or show success
     } catch (err) {
-      // TODO: Handle server error (show error message)
-      console.error("Sign up failed", err);
+      console.error(err);
     }
   };
+
+  const inputClass = "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
   return (
     <motion.form
@@ -47,31 +46,48 @@ export function SignUpForm() {
     >
       <div>
         <label className="block text-sm font-medium mb-1">Email</label>
-        <Input {...register("email")} placeholder="your@email.com" />
+        <input
+          type="email"
+          {...register("email")}
+          className={inputClass}
+          placeholder="you@example.com"
+        />
         {errors.email && (
-          <p className="text-red-500 text-sm">{errors.email.message}</p>
+          <p className="mt-1 text-red-500 text-sm">{errors.email.message}</p>
         )}
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-1">Password</label>
-        <Input type="password" {...register("password")} />
+        <input
+          type="password"
+          {...register("password")}
+          className={inputClass}
+        />
         {errors.password && (
-          <p className="text-red-500 text-sm">{errors.password.message}</p>
+          <p className="mt-1 text-red-500 text-sm">{errors.password.message}</p>
         )}
       </div>
 
       <div>
         <label className="block text-sm font-medium mb-1">Confirm Password</label>
-        <Input type="password" {...register("confirmPassword")} />
+        <input
+          type="password"
+          {...register("confirmPassword")}
+          className={inputClass}
+        />
         {errors.confirmPassword && (
-          <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
+          <p className="mt-1 text-red-500 text-sm">{errors.confirmPassword.message}</p>
         )}
       </div>
 
-      <Button type="submit" disabled={isSubmitting} className="w-full">
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400"
+      >
         {isSubmitting ? "Signing Up…" : "Sign Up"}
-      </Button>
+      </button>
     </motion.form>
   );
 }

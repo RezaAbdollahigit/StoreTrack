@@ -1,19 +1,30 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { SignInSchema, type SignInSchema as SignInValues } from '@/utils/authSchema'
-import { Input } from '@shadcn/ui'
-import { Button } from '@shadcn/ui'
-import { motion } from 'framer-motion'
-import { signIn } from '../api/auth'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignInSchema, type SignInValues } from "../utils/authSchema";
+import { motion } from "framer-motion";
+import { signIn } from "../api/auth";
 
-export function SignInForm() {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } =
-    useForm<SignInValues>({ resolver: zodResolver(SignInSchema) })
+export default function SignInForm() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignInValues>({
+    resolver: zodResolver(SignInSchema),
+  });
 
   const onSubmit = async (data: SignInValues) => {
-    await signIn(data.email, data.password)
-    // handle token + redirect…
-  }
+    try {
+      await signIn(data.email, data.password);
+      // TODO: handle token storage + redirect
+    } catch (err) {
+      console.error("Sign in failed", err);
+      // TODO: show error feedback
+    }
+  };
+
+  const inputClass =
+    "w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500";
 
   return (
     <motion.form
@@ -23,18 +34,37 @@ export function SignInForm() {
       className="space-y-4"
     >
       <div>
-        <label>Email</label>
-        <Input {...register('email')} placeholder="you@company.com" />
-        {errors.email && <p className="text-red-500">{errors.email.message}</p>}
+        <label className="block text-sm font-medium mb-1">Email</label>
+        <input
+          type="email"
+          {...register("email")}
+          className={inputClass}
+          placeholder="you@example.com"
+        />
+        {errors.email && (
+          <p className="mt-1 text-red-500 text-sm">{errors.email.message}</p>
+        )}
       </div>
+
       <div>
-        <label>Password</label>
-        <Input type="password" {...register('password')} />
-        {errors.password && <p className="text-red-500">{errors.password.message}</p>}
+        <label className="block text-sm font-medium mb-1">Password</label>
+        <input
+          type="password"
+          {...register("password")}
+          className={inputClass}
+        />
+        {errors.password && (
+          <p className="mt-1 text-red-500 text-sm">{errors.password.message}</p>
+        )}
       </div>
-      <Button type="submit" disabled={isSubmitting} className="w-full">
-        {isSubmitting ? 'Signing In…' : 'Sign In'}
-      </Button>
+
+      <button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400"
+      >
+        {isSubmitting ? "Signing In…" : "Sign In"}
+      </button>
     </motion.form>
-  )
+  );
 }
