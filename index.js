@@ -152,7 +152,22 @@ app.post('/orders', async (req, res) => {
     // اگر تمام مراحل موفق بود، تراکنش را تایید کن
     await t.commit();
 
+    // --- بخش ویژگی امتیازی: بررسی کمبود موجودی ---
+    const LOW_STOCK_THRESHOLD = 10;
+    for (const update of productUpdates) {
+      if (update.newStock > 0 && update.newStock <= LOW_STOCK_THRESHOLD) {
+        console.log(`
+          ******************** هشدار کمبود موجودی ********************
+          محصول با شناسه: ${update.id}
+          موجودی جدید: ${update.newStock}
+          لطفاً انبار را شارژ کنید.
+          ***********************************************************
+        `);
+      }
+    }
+
     return res.status(201).json(newOrder);
+// ...
 
   } catch (error) {
     // اگر خطایی رخ داد، تمام تغییرات را به حالت قبل برگردان
