@@ -1,10 +1,12 @@
 const express = require('express');
+const cors = require('cors');
 const { Op } = require('sequelize');
 const { sequelize, Category, Product, Order, OrderItem, StockMovement, User } = require('./models');
 const app = express();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = 'your-super-secret-key-12345';
+app.use(cors());
 app.use(express.json());
 
 app.post('/categories', async (req, res) => {
