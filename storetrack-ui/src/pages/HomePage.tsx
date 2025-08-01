@@ -16,7 +16,6 @@ const HomePage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // === این خط اصلاح شد ===
         const response = await axios.get('http://localhost:3000/api/products');
         setProducts(response.data);
       } catch (error) {
