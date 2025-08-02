@@ -3,7 +3,8 @@ import { useAuth } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import HomePage from './pages/HomePage';
-import Header from './components/Header'; 
+import LandingPage from './pages/LandingPage';
+// import Header from './components/Header'; 
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -15,12 +16,17 @@ export default function App() {
 
   return (
     <Router>
-      <Header /> {}
-      <main className="container mx-auto p-6">
+      <main>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/auth" element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />} />
-          <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+          <Route path="/" element={<LandingPage />} /> {/* Landing Page is the default */}
+          <Route 
+            path="/auth" 
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />} 
+          />
+          <Route 
+            path="/dashboard" 
+            element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} 
+          />
         </Routes>
       </main>
     </Router>
