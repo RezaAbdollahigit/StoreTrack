@@ -9,7 +9,7 @@ const JWT_SECRET = 'your-super-secret-key-12345';
 app.use(cors());
 app.use(express.json());
 
-app.post('/api/categories', async (req, res) => {
+app.post('/categories', async (req, res) => {
   const { name } = req.body;
   try {
     if (!name) {
@@ -24,7 +24,7 @@ app.post('/api/categories', async (req, res) => {
 });
 
 // API خواندن دسته‌بندی‌ها
-app.get('/api/categories', async (req, res) => {
+app.get('/categories', async (req, res) => {
   try {
     const categories = await Category.findAll();
     return res.json(categories);
@@ -35,7 +35,7 @@ app.get('/api/categories', async (req, res) => {
 });
 
 // API ایجاد محصول
-app.post('/api/products', async (req, res) => {
+app.post('/products', async (req, res) => {
   const { name, description, price, stockQuantity, categoryId } = req.body;
   try {
     const category = await Category.findByPk(categoryId);
@@ -58,7 +58,7 @@ app.post('/api/products', async (req, res) => {
 
 // مسیر API برای خواندن تمام محصولات با قابلیت فیلتر بر اساس دسته‌بندی
 // مسیر API برای خواندن محصولات با قابلیت فیلتر و جستجو
-app.get('/api/products', async (req, res) => {
+app.get('/products', async (req, res) => {
   try {
     const { categoryId, search } = req.query; 
     const whereClause = {};
@@ -87,7 +87,7 @@ app.get('/api/products', async (req, res) => {
 });
 
 // مسیر API برای ثبت یک سفارش جدید
-app.post('/api/orders', async (req, res) => {
+app.post('/orders', async (req, res) => {
   // شروع یک تراکنش
   const t = await sequelize.transaction();
 
@@ -180,7 +180,7 @@ app.post('/api/orders', async (req, res) => {
 });
 
 // مسیر API برای خواندن سفارشات با قابلیت جستجوی پیشرفته
-app.get('/api/orders', async (req, res) => {
+app.get('/orders', async (req, res) => {
   try {
     const { search, productName } = req.query;
     const whereClause = {};
@@ -218,7 +218,7 @@ app.get('/api/orders', async (req, res) => {
 });
 
 // مسیر API برای گزارش کالاهای با موجودی پایین
-app.get('/api/reports/low-stock', async (req, res) => {
+app.get('/reports/low-stock', async (req, res) => {
   try {
     const LOW_STOCK_THRESHOLD = 10; 
     const lowStockProducts = await Product.findAll({
@@ -237,7 +237,7 @@ app.get('/api/reports/low-stock', async (req, res) => {
 });
 
 // مسیر API برای گزارش فروش
-app.get('/api/reports/sales', async (req, res) => {
+app.get('/reports/sales', async (req, res) => {
   try {
     const totalOrders = await Order.count();
     const totalRevenue = await Order.sum('totalAmount');
@@ -253,7 +253,7 @@ app.get('/api/reports/sales', async (req, res) => {
 });
 
 // مسیر API برای به‌روزرسانی وضعیت یک سفارش
-app.patch('/api/orders/:id', async (req, res) => {
+app.patch('/orders/:id', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -274,7 +274,7 @@ app.patch('/api/orders/:id', async (req, res) => {
 });
 
 // مسیر API برای ثبت‌نام کاربر جدید
-app.post('/api/signup', async (req, res) => {
+app.post('/signup', async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -301,7 +301,7 @@ app.post('/api/signup', async (req, res) => {
 });
 
 // مسیر API برای ورود کاربر
-app.post('/api/signin', async (req, res) => {
+app.post('/signin', async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -330,7 +330,7 @@ app.post('/api/signin', async (req, res) => {
 });
 
 // API برای گرفتن لیست تمام یوزرها
-app.get('/api/users', async (req, res) => {
+app.get('/users', async (req, res) => {
   try {
     const users = await User.findAll({
       attributes: { exclude: ['password'] }
