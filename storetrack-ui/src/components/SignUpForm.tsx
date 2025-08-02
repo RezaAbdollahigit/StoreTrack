@@ -93,7 +93,7 @@ export default function SignUpForm() {
         disabled={isSubmitting}
         className="w-full py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-gray-400"
       >
-        {isSubmitting ? "در حال ثبت‌نام..." : "ثبت‌نام"}
+        {isSubmitting ? "Signing Up…" : "Sign Up"}
       </button>
     </motion.form>
   );
