@@ -1,22 +1,11 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { motion } from "framer-motion";
 import { signUp } from "../api/auth";
 import { AxiosError } from "axios"; 
+import { SignUpSchema, type SignUpValues } from '../utils/authSchema';
 
-const SignUpSchema = z
-  .object({
-    email: z.string().email("Invalid email"),
-    password: z.string().min(6, "Password must be at least 6 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords must match",
-  });
 
-type SignUpValues = z.infer<typeof SignUpSchema>;
 
 export default function SignUpForm() {
   const {
@@ -24,18 +13,18 @@ export default function SignUpForm() {
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<SignUpValues>({
-    resolver: zodResolver(SignUpSchema),
+    resolver: zodResolver(SignUpSchema), // This will now use the correct, imported schema
   });
 
   const onSubmit = async (data: SignUpValues) => {
     try {
       await signUp(data.email, data.password);
-      alert("ثبت‌نام با موفقیت انجام شد! حالا می‌توانید وارد شوید.");
+      alert("Sign-up successful! You can now sign in.");
     } catch (err) {
       if (err instanceof AxiosError && err.response) {
-        alert(`خطا: ${err.response.data.error}`);
+        alert(`Error: ${err.response.data.error}`);
       } else {
-        alert("یک خطای پیش‌بینی نشده رخ داد.");
+        alert("An unexpected error occurred.");
       }
       console.error(err);
     }
@@ -45,6 +34,7 @@ export default function SignUpForm() {
 
   return (
     <motion.form
+      noValidate
       onSubmit={handleSubmit(onSubmit)}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
