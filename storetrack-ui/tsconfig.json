@@ -1,7 +1,6 @@
 {
   "files": [],
   "compilerOptions": {
-    // These options are added here to satisfy the Edge Tools extension
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
