@@ -1,13 +1,14 @@
+const apiRoutes = require('./routes/api');
+const productRoutes = require('./routes/productRoutes');
 const express = require('express');
 const cors = require('cors');
 const { Op } = require('sequelize');
 const { sequelize, Category, Product, Order, OrderItem, StockMovement, User } = require('./models');
 const app = express();
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const JWT_SECRET = 'your-super-secret-key-12345';
 app.use(cors());
 app.use(express.json());
+app.use('/api', apiRoutes);
+app.use('/api/products', productRoutes);
 
 app.post('/categories', async (req, res) => {
   const { name } = req.body;
@@ -30,58 +31,6 @@ app.get('/categories', async (req, res) => {
     return res.json(categories);
   } catch (error) {
     console.error('Error fetching categories:', error);
-    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
-  }
-});
-
-// API ایجاد محصول
-app.post('/products', async (req, res) => {
-  const { name, description, price, stockQuantity, categoryId } = req.body;
-  try {
-    const category = await Category.findByPk(categoryId);
-    if (!category) {
-      return res.status(400).json({ error: 'دسته‌بندی مشخص شده یافت نشد' });
-    }
-    const newProduct = await Product.create({
-      name,
-      description,
-      price,
-      stockQuantity,
-      categoryId
-    });
-    return res.status(201).json(newProduct);
-  } catch (error) {
-    console.error('Error creating product:', error);
-    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
-  }
-});
-
-// مسیر API برای خواندن تمام محصولات با قابلیت فیلتر بر اساس دسته‌بندی
-// مسیر API برای خواندن محصولات با قابلیت فیلتر و جستجو
-app.get('/products', async (req, res) => {
-  try {
-    const { categoryId, search } = req.query; 
-    const whereClause = {};
-
-    if (categoryId) {
-      whereClause.categoryId = categoryId;
-    }
-
-    if (search) {
-      whereClause[Op.or] = [
-        { name: { [Op.iLike]: `%${search}%` } },
-        { description: { [Op.iLike]: `%${search}%` } }
-      ];
-    }
-
-    const products = await Product.findAll({
-      where: whereClause,
-      include: 'category'
-    });
-    
-    return res.json(products);
-  } catch (error) {
-    console.error('Error fetching products:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
 });
@@ -269,62 +218,6 @@ app.patch('/orders/:id', async (req, res) => {
     return res.json(order);
   } catch (error) {
     console.error('Error updating order status:', error);
-    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
-  }
-});
-
-// مسیر API برای ثبت‌نام کاربر جدید
-app.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    if (!email || !password) {
-      return res.status(400).json({ error: 'ایمیل و پسورد اجباری هستند' });
-    }
-
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ error: 'کاربری با این ایمیل از قبل وجود دارد' });
-    }
-
-    const newUser = await User.create({ email, password });
-
-    return res.status(201).json({
-      id: newUser.id,
-      email: newUser.email
-    });
-
-  } catch (error) {
-    console.error('Error during registration:', error);
-    return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
-  }
-});
-
-// مسیر API برای ورود کاربر
-app.post('/signin', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(401).json({ error: 'ایمیل یا پسورد نامعتبر است' });
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'ایمیل یا پسورد نامعتبر است' });
-    }
-
-    const token = jwt.sign(
-      { id: user.id, email: user.email }, 
-      JWT_SECRET,
-      { expiresIn: '1h' } 
-    );
-
-    return res.json({ message: 'ورود موفقیت‌آمیز بود', token });
-
-  } catch (error) {
-    console.error('Error during login:', error);
     return res.status(500).json({ error: 'خطایی در سرور رخ داد' });
   }
 });
