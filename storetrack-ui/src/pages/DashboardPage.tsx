@@ -1,89 +1,84 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../api/axios';
-import ProductCard from '../components/ProductCard';
-import Modal from '../components/Modal'; 
-import AddProductForm from '../components/AddProductForm'; 
-import { PlusCircle } from 'lucide-react'; // For the button icon
+import Modal from '../components/Modal';
+import AddCategoryForm from '../components/AddCategoryForm';
+import CategorySection from '../components/CategorySection';
+import { PlusCircle } from 'lucide-react';
 
-interface Product {
+interface Category {
   id: number;
   name: string;
-  price: string;
-  stockQuantity: number;
-  imageUrl?: string;
 }
 
 export default function DashboardPage() {
   const { logout } = useAuth();
-  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State to control the modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Wrap fetchProducts in a function so we can call it again
-  const fetchProducts = async () => {
+  // This function will now fetch categories
+  const fetchCategories = async () => {
     setLoading(true);
     try {
-      const response = await apiClient.get('/products');
-      setProducts(response.data);
+      const response = await apiClient.get('/categories');
+      setCategories(response.data);
     } catch (error) {
-      console.error("Error fetching products:", error);
+      console.error("Error fetching categories:", error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchCategories();
   }, []);
 
-  const handleAddProductSuccess = () => {
+  const handleAddCategorySuccess = () => {
     setIsModalOpen(false); // Close the modal
-    fetchProducts(); // Refresh the product list
+    fetchCategories(); // Refresh the category list
   };
 
   return (
     <>
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Add New Product"
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Add New Category"
       >
-        <AddProductForm onSuccess={handleAddProductSuccess} />
+        <AddCategoryForm onSuccess={handleAddCategorySuccess} />
       </Modal>
 
       <div className="p-8">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">StoreTrack Dashboard</h1>
-          <button
-            onClick={logout}
-            className="px-4 py-2 font-medium rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
-          >
-            Log Out
-          </button>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Your Products</h2>
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <div className="flex items-center gap-4"> {}
             <button
-              onClick={() => setIsModalOpen(true)} // This button opens the modal
+              onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
             >
               <PlusCircle size={20} />
-              Add Product
+              Add Category
+            </button>
+            <button
+              onClick={logout}
+              className="px-4 py-2 font-medium rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
+            >
+              Log Out
             </button>
           </div>
-          {/* ... (rest of the product display logic is the same) */}
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
           {loading ? (
-            <p>Loading products...</p>
+            <p>Loading categories...</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {products.length === 0 ? (
-                <p>You have not added any products yet.</p>
+            <div>
+              {categories.length === 0 ? (
+                <p className="text-center text-gray-500">No categories found. Click "Add Category" to get started.</p>
               ) : (
-                products.map(product => (
-                  <ProductCard key={product.id} product={product} />
+                categories.map(category => (
+                  <CategorySection key={category.id} category={category} />
                 ))
               )}
             </div>
