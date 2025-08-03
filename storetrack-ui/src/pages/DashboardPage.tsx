@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import apiClient from '../api/axios';
 import ProductCard from '../components/ProductCard';
-import Modal from '../components/Modal'; // Import the new Modal
-import AddProductForm from '../components/AddProductForm'; // Import the new Form
+import Modal from '../components/Modal'; 
+import AddProductForm from '../components/AddProductForm'; 
 import { PlusCircle } from 'lucide-react'; // For the button icon
 
 interface Product {
