@@ -66,12 +66,32 @@ router.get('/', async (req, res) => {
   }
 });
 
+
+// Delete all the products
 router.delete('/', async (req, res) => {
   try {
     await sequelize.query('TRUNCATE "Products" RESTART IDENTITY CASCADE;');
     return res.status(200).json({ message: 'All products have been successfully deleted.' });
   } catch (error) {
     console.error('Error deleting products:', error);
+    return res.status(500).json({ error: 'An error occurred on the server.' });
+  }
+});
+
+//Delete the specific product
+router.delete('/:id', async (req, res) => {
+  const { id } = req.params; 
+  try {
+    const product = await Product.findByPk(id);
+
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+
+    await product.destroy();
+    return res.status(200).json({ message: 'Product successfully deleted.' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
     return res.status(500).json({ error: 'An error occurred on the server.' });
   }
 });
