@@ -1,9 +1,43 @@
 const express = require('express');
-const { Op } = require('sequelize');
-const { Product, Category } = require('../models');
+const { Product, sequelize, Category } = require('../models'); 
+const { Op } = require('sequelize'); 
+const multer = require('multer');
+const path = require('path');
 const router = express.Router();
 
-// API route for reading products with filtering and search
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+router.post('/', upload.single('image'), async (req, res) => {
+  const { name, description, price, stockQuantity, categoryId } = req.body;
+  
+  try {
+    const imageUrl = req.file ? `/public/uploads/${req.file.filename}` : null;
+
+    const newProduct = await Product.create({
+      name,
+      description,
+      price,
+      stockQuantity,
+      categoryId,
+      imageUrl 
+    });
+
+    return res.status(201).json(newProduct);
+  } catch (error) {
+    console.error('Error creating product:', error);
+    return res.status(500).json({ error: 'An error occurred on the server.' });
+  }
+});
+
 router.get('/', async (req, res) => {
   try {
     const { categoryId, search } = req.query; 
@@ -22,7 +56,7 @@ router.get('/', async (req, res) => {
 
     const products = await Product.findAll({
       where: whereClause,
-      include: 'category'
+      include: 'category' 
     });
     
     return res.json(products);
@@ -32,24 +66,12 @@ router.get('/', async (req, res) => {
   }
 });
 
-// API for creating a product
-router.post('/', async (req, res) => {
-  const { name, description, price, stockQuantity, categoryId } = req.body;
+router.delete('/', async (req, res) => {
   try {
-    const category = await Category.findByPk(categoryId);
-    if (!category) {
-      return res.status(400).json({ error: 'The specified category was not found.' });
-    }
-    const newProduct = await Product.create({
-      name,
-      description,
-      price,
-      stockQuantity,
-      categoryId
-    });
-    return res.status(201).json(newProduct);
+    await sequelize.query('TRUNCATE "Products" RESTART IDENTITY CASCADE;');
+    return res.status(200).json({ message: 'All products have been successfully deleted.' });
   } catch (error) {
-    console.error('Error creating product:', error);
+    console.error('Error deleting products:', error);
     return res.status(500).json({ error: 'An error occurred on the server.' });
   }
 });
