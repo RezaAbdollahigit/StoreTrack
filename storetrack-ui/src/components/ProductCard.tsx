@@ -2,7 +2,7 @@ interface Product {
   id: number;
   name: string;
   price: string;
-  imageUrl?: string; 
+  imageUrl?: string;
 }
 
 interface ProductCardProps {
@@ -10,6 +10,12 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ product }: ProductCardProps) => {
+  const BACKEND_URL = 'http://localhost:3000';
+
+  const fullImageUrl = product.imageUrl 
+    ? `${BACKEND_URL}${product.imageUrl}` 
+    : 'https://via.placeholder.com/150';
+
   return (
     <div style={{
       border: '1px solid #eee',
@@ -19,12 +25,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
       width: '200px'
     }}>
       <img 
-        src={product.imageUrl || 'https://via.placeholder.com/150'} 
+        src={fullImageUrl} 
         alt={product.name} 
         style={{ width: '100%', height: '150px', objectFit: 'cover' }} 
       />
       <h3 style={{ fontSize: '1.1rem', margin: '0.5rem 0' }}>{product.name}</h3>
-      <p style={{ color: '#555' }}>{Number(product.price).toLocaleString()} تومان</p>
+      <p style={{ color: '#555' }}>${Number(product.price).toLocaleString()}</p>
     </div>
   );
 };
