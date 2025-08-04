@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const { sequelize } = require('./models');
+const path = require('path'); 
 
 // Import all the router files
 const apiRoutes = require('./routes/api');
@@ -11,9 +12,9 @@ const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // Mount all the routers with their base paths
 app.use('/api', apiRoutes); // For signup and signin
