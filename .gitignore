@@ -3,7 +3,7 @@ node_modules/
 storetrack-ui/node_modules/
 
 # User Uploads (for the backend)
-public/uploads/
+# public/uploads/
 
 # Build output
 dist/
