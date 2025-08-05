@@ -1,9 +1,11 @@
 const express = require('express');
-const { Product, sequelize, Category } = require('../models'); 
+const { Product, sequelize } = require('../models'); 
 const { Op } = require('sequelize'); 
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs'); 
 const router = express.Router();
+
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -88,7 +90,28 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Product not found.' });
     }
 
+    // 2. Get the path to the image file before deleting the record
+    const imagePath = product.imageUrl;
+
+    // 3. Delete the product from the database
     await product.destroy();
+
+    // 4. If an image path exists, delete the file from the server
+    if (imagePath) {
+      // Construct the full file system path (e.g., D:\...\StoreTrack\public\uploads\123.jpg)
+      const fullPath = path.join(__dirname, '..', imagePath);
+      
+      fs.unlink(fullPath, (err) => {
+        if (err) {
+          // Log an error if the file couldn't be deleted, but don't fail the request
+          // because the database entry was already successfully removed.
+          console.error(`Failed to delete image file: ${fullPath}`, err);
+        } else {
+          console.log(`Successfully deleted image file: ${fullPath}`);
+        }
+      });
+    }
+
     return res.status(200).json({ message: 'Product successfully deleted.' });
   } catch (error) {
     console.error('Error deleting product:', error);
