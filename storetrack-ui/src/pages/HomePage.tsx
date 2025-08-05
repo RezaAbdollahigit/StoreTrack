@@ -6,6 +6,8 @@ interface Product {
   id: number;
   name: string;
   price: string;
+  description?: string;
+  stockQuantity?: number;
   imageUrl?: string;
 }
 
@@ -19,7 +21,7 @@ const HomePage = () => {
         const response = await axios.get('http://localhost:3000/api/products');
         setProducts(response.data);
       } catch (error) {
-        console.error("خطا در دریافت محصولات:", error);
+        console.error("Error fetching products:", error);
       } finally {
         setLoading(false);
       }
@@ -29,15 +31,15 @@ const HomePage = () => {
   }, []);
 
   if (loading) {
-    return <p>در حال بارگذاری محصولات...</p>;
+    return <p>Loading products...</p>;
   }
 
   return (
     <div>
-      <h1>محصولات پرفروش</h1>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+      <h1 className="text-2xl font-bold text-center mb-6">Bestselling Products</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.length === 0 ? (
-          <p>محصولی برای نمایش وجود ندارد.</p>
+          <p>No products to display.</p>
         ) : (
           products.map(product => (
             <ProductCard key={product.id} product={product} />
