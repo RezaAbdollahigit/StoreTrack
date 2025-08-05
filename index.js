@@ -29,6 +29,12 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     console.log('Database connection has been established successfully.');
+    // ADD THESE LINES FOR DEBUGGING
+    console.log('--- CONNECTED TO DATABASE ---');
+    console.log('Host:', sequelize.config.host);
+    console.log('Port:', sequelize.config.port);
+    console.log('Database Name:', sequelize.config.database);
+    console.log('---------------------------');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
