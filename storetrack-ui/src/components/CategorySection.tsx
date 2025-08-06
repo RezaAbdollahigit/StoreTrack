@@ -41,7 +41,7 @@ export default function CategorySection({
     if (window.confirm(`Are you sure you want to delete the "${category.name}" category? This cannot be undone.`)) {
       try {
         await deleteCategory(category.id);
-        onDeleteSuccess(category.id); // Notify the parent Dashboard
+        onDeleteSuccess(category.id);
       } catch (error) {
         console.error('Failed to delete category', error);
         alert('Failed to delete category.');
@@ -69,19 +69,26 @@ export default function CategorySection({
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {products.length > 0 ? (
-            products.map(product => (
-              <ProductCard 
-                key={product.id} 
-                product={product} 
-                onEdit={onEditProduct}
-                onDelete={onDeleteProduct}
-              />
-            ))
-          ) : (
-            <p className="text-gray-400 col-span-full text-center">No products in this category yet.</p>
-          )}
+        
+        {/* --- PRODUCT LIST SECTION --- */}
+        <div className="bg-gray-50 rounded-lg p-4">
+          <div className="flex space-x-6 overflow-x-auto">
+            {products.length > 0 ? (
+              products.map(product => (
+                <div key={product.id} className="w-64 flex-shrink-0">
+                  <ProductCard 
+                    product={product} 
+                    onEdit={onEditProduct}
+                    onDelete={onDeleteProduct}
+                  />
+                </div>
+              ))
+            ) : (
+              <div className="w-full text-center text-gray-400">
+                <p>No products in this category yet.</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

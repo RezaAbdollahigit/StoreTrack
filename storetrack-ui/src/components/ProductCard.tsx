@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { MoreVertical, Edit, Trash2 } from 'lucide-react';
-import type { Product } from '../types'; 
+import type { Product } from '../types';
 
 interface ProductCardProps {
   product: Product;
@@ -11,16 +11,22 @@ interface ProductCardProps {
 const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const BACKEND_URL = 'http://localhost:3000';
-  
-  const fullImageUrl = product.imageUrl 
-    ? `${BACKEND_URL}${product.imageUrl}` 
+
+  const fullImageUrl = product.imageUrl
+    ? `${BACKEND_URL}${product.imageUrl}`
     : 'https://via.placeholder.com/150';
 
   return (
     <div className="relative overflow-hidden rounded-lg shadow-lg flex flex-col w-full">
       {/* Menu Button (Three Dots) */}
       <div className="absolute top-2 right-2 z-10">
-        <button onClick={() => setMenuOpen(!menuOpen)} onBlur={() => setTimeout(() => setMenuOpen(false), 150)} className="p-1 bg-white/70 rounded-full hover:bg-white">
+        <button
+          type="button"
+          onClick={() => setMenuOpen(!menuOpen)}
+          onBlur={() => setTimeout(() => setMenuOpen(false), 150)}
+          className="p-1 bg-white/70 rounded-full hover:bg-white"
+          aria-label="Product options"
+        >
           <MoreVertical size={20} />
         </button>
         {menuOpen && (
@@ -41,12 +47,14 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
         )}
       </div>
 
-      <img 
-        src={fullImageUrl} 
-        alt={product.name} 
-        className="w-full h-56 object-cover"
-      />
-      
+      <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+        <img
+          src={fullImageUrl}
+          alt={product.name}
+          className="h-full w-full object-cover object-center" // Use object-cover here
+        />
+      </div>
+
       <div className="p-4 bg-white flex-grow flex flex-col min-w-0">
         <h3 className="text-lg font-semibold flex-grow">
           {product.name}
