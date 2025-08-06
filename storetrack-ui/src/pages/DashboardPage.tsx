@@ -13,11 +13,10 @@ export default function DashboardPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCategoryModalOpen, setCategoryModalOpen] = useState(false);
-  
   const [isProductModalOpen, setProductModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
 
-  const fetchCategories = async () => {
+  const fetchCategoriesAndProducts = async () => {
     setLoading(true);
     try {
       const response = await apiClient.get('/categories');
@@ -30,7 +29,7 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    fetchCategories();
+    fetchCategoriesAndProducts();
   }, []);
   
   const handleEditProduct = (product: Product) => {
@@ -43,7 +42,7 @@ export default function DashboardPage() {
       try {
         await apiClient.delete(`/products/${id}`);
         alert('Product deleted successfully.');
-        fetchCategories(); 
+        fetchCategoriesAndProducts(); 
       } catch (error) {
         console.error('Failed to delete product', error);
         alert('Failed to delete product.');
@@ -51,9 +50,16 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCategoryDeleted = (deletedCategoryId: number) => {
+    setCategories(currentCategories => 
+      currentCategories.filter(cat => cat.id !== deletedCategoryId)
+    );
+  };
+
   const handleFormSuccess = () => {
     setProductModalOpen(false);
-    fetchCategories(); 
+    setCategoryModalOpen(false);
+    fetchCategoriesAndProducts(); 
   };
 
   return (
@@ -63,7 +69,7 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setCategoryModalOpen(true)}
+              onClick={() => { setProductToEdit(undefined); setCategoryModalOpen(true); }}
               className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
             >
               <PlusCircle size={20} />
@@ -87,7 +93,8 @@ export default function DashboardPage() {
                     category={category}
                     onEditProduct={handleEditProduct}
                     onDeleteProduct={handleDeleteProduct}
-                    onDataChange={fetchCategories}
+                    onDataChange={fetchCategoriesAndProducts}
+                    onDeleteSuccess={handleCategoryDeleted}
                   />
                 ))
               )}
@@ -97,10 +104,10 @@ export default function DashboardPage() {
       </div>
 
       <Modal isOpen={isCategoryModalOpen} onClose={() => setCategoryModalOpen(false)} title="Add New Category">
-        <AddCategoryForm onSuccess={() => { setCategoryModalOpen(false); fetchCategories(); }} />
+        <AddCategoryForm onSuccess={handleFormSuccess} />
       </Modal>
 
-      <Modal isOpen={isProductModalOpen} onClose={() => setProductModalOpen(false)} title="Edit Product">
+      <Modal isOpen={isProductModalOpen} onClose={() => setProductModalOpen(false)} title={productToEdit ? "Edit Product" : "Add Product"}>
         <AddProductForm onSuccess={handleFormSuccess} productToEdit={productToEdit} />
       </Modal>
     </>
