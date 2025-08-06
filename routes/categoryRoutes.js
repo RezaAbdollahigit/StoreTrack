@@ -1,5 +1,5 @@
 const express = require('express');
-const { Category, sequelize } = require('../models');
+const { Category, Product, sequelize } = require('../models'); 
 const router = express.Router();
 
 // Create a new category
@@ -30,32 +30,45 @@ router.get('/', async (req, res) => {
 
 // Delete a single category by its ID
 router.delete('/:id', async (req, res) => {
-  const { id } = req.params; 
-  try {
-    const category = await Category.findByPk(id);
+  const { id } = req.params;
+  const t = await sequelize.transaction();
 
+  try {
+    const category = await Category.findByPk(id, { transaction: t });
     if (!category) {
+      await t.rollback();
       return res.status(404).json({ error: 'Category not found.' });
     }
 
-    await category.destroy();
-    return res.status(200).json({ message: 'Category successfully deleted.' });
+    await Product.update(
+      { categoryId: null },
+      { where: { categoryId: id }, transaction: t }
+    );
+
+    await category.destroy({ transaction: t });
+
+    await t.commit();
+    return res.status(200).json({ message: 'Category successfully deleted. Associated products are now uncategorized.' });
   } catch (error) {
+    await t.rollback();
     console.error('Error deleting category:', error);
     return res.status(500).json({ error: 'An error occurred on the server.' });
   }
 });
 
-// Delete ALL categories and RESET the ID counter
 router.delete('/', async (req, res) => {
+  const t = await sequelize.transaction();
   try {
-    await sequelize.query('TRUNCATE "Categories" RESTART IDENTITY CASCADE;');
-    
-    return res.status(200).json({ message: 'All categories and related data deleted, and ID counter has been reset.' });
+    await Product.update({ categoryId: null }, { where: {}, transaction: t });
+    await Category.destroy({ where: {}, truncate: true, transaction: t });
+    await t.commit();
+    return res.status(200).json({ message: 'All categories deleted. All products are now uncategorized.' });
   } catch (error) {
-    console.error('Error truncating categories:', error);
+    await t.rollback();
+    console.error('Error deleting categories:', error);
     return res.status(500).json({ error: 'An error occurred on the server.' });
   }
 });
+
 
 module.exports = router;

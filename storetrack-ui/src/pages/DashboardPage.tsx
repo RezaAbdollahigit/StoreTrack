@@ -41,7 +41,7 @@ export default function DashboardPage() {
   const handleDeleteProduct = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
-        await apiClient.delete(`/api/products/${id}`);
+        await apiClient.delete(`/products/${id}`);
         alert('Product deleted successfully.');
         fetchCategories(); 
       } catch (error) {

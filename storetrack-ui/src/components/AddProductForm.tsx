@@ -47,7 +47,7 @@ export default function AddProductForm({ onSuccess, productToEdit, defaultCatego
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await apiClient.get('/api/categories');
+        const response = await apiClient.get('/categories');
         setCategories(response.data);
       } catch (error) {
         console.error('Failed to fetch categories', error);
@@ -71,12 +71,12 @@ export default function AddProductForm({ onSuccess, productToEdit, defaultCatego
 
     try {
       if (isEditMode) {
-        await apiClient.put(`/api/products/${productToEdit.id}`, formData, {
+        await apiClient.put(`/products/${productToEdit.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         alert('Product updated successfully!');
       } else {
-        await apiClient.post('/api/products', formData, {
+        await apiClient.post('/products', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         alert('Product created successfully!');
