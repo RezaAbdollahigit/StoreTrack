@@ -4,20 +4,19 @@ import apiClient from '../api/axios';
 import Modal from '../components/Modal';
 import AddCategoryForm from '../components/AddCategoryForm';
 import CategorySection from '../components/CategorySection';
+import AddProductForm from '../components/AddProductForm'; 
 import { PlusCircle } from 'lucide-react';
-
-interface Category {
-  id: number;
-  name: string;
-}
+import type { Category, Product } from '../types';
 
 export default function DashboardPage() {
   const { logout } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCategoryModalOpen, setCategoryModalOpen] = useState(false);
+  
+  const [isProductModalOpen, setProductModalOpen] = useState(false);
+  const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
 
-  // This function fetches the initial list of categories
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -30,68 +29,65 @@ export default function DashboardPage() {
     }
   };
 
-  // Fetch the categories when the component first loads
   useEffect(() => {
     fetchCategories();
   }, []);
-
-  // This function handles a successful new category creation
-  const handleAddCategorySuccess = () => {
-    setIsModalOpen(false); // Close the modal
-    fetchCategories();      // Re-fetch the list to include the new one
+  
+  const handleEditProduct = (product: Product) => {
+    setProductToEdit(product);
+    setProductModalOpen(true);
+  };
+  
+  const handleDeleteProduct = async (id: number) => {
+    if (window.confirm('Are you sure you want to delete this product?')) {
+      try {
+        await apiClient.delete(`/api/products/${id}`);
+        alert('Product deleted successfully.');
+        fetchCategories(); 
+      } catch (error) {
+        console.error('Failed to delete product', error);
+        alert('Failed to delete product.');
+      }
+    }
   };
 
-  // This function handles a successful category deletion
-  const handleCategoryDeleted = (deletedCategoryId: number) => {
-    // Filter out the deleted category from the current state for an instant UI update
-    setCategories(currentCategories => 
-      currentCategories.filter(cat => cat.id !== deletedCategoryId)
-    );
+  const handleFormSuccess = () => {
+    setProductModalOpen(false);
+    fetchCategories(); 
   };
 
   return (
     <>
-      <Modal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        title="Add New Category"
-      >
-        <AddCategoryForm onSuccess={handleAddCategorySuccess} />
-      </Modal>
-
       <div className="p-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+              onClick={() => setCategoryModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
             >
               <PlusCircle size={20} />
               Add Category
             </button>
-            <button
-              onClick={logout}
-              className="px-4 py-2 font-medium rounded-md bg-red-500 text-white hover:bg-red-600 transition-colors"
-            >
+            <button onClick={logout} className="px-4 py-2 font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
               Log Out
             </button>
           </div>
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow">
-          {loading ? (
-            <p className="text-center text-gray-500">Loading categories...</p>
-          ) : (
+          {loading ? <p>Loading categories...</p> : (
             <div>
               {categories.length === 0 ? (
-                <p className="text-center text-gray-500">No categories found. Click "Add Category" to get started.</p>
+                <p>No categories found. Click "Add Category" to get started.</p>
               ) : (
                 categories.map(category => (
                   <CategorySection 
                     key={category.id} 
                     category={category}
-                    onDeleteSuccess={handleCategoryDeleted}
+                    onEditProduct={handleEditProduct}
+                    onDeleteProduct={handleDeleteProduct}
+                    onDataChange={fetchCategories}
                   />
                 ))
               )}
@@ -99,6 +95,14 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
+
+      <Modal isOpen={isCategoryModalOpen} onClose={() => setCategoryModalOpen(false)} title="Add New Category">
+        <AddCategoryForm onSuccess={() => { setCategoryModalOpen(false); fetchCategories(); }} />
+      </Modal>
+
+      <Modal isOpen={isProductModalOpen} onClose={() => setProductModalOpen(false)} title="Edit Product">
+        <AddProductForm onSuccess={handleFormSuccess} productToEdit={productToEdit} />
+      </Modal>
     </>
   );
 }

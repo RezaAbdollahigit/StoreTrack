@@ -1,17 +1,15 @@
-interface Product {
-  id: number;
-  name: string;
-  price: string;
-  description?: string;
-  stockQuantity?: number;
-  imageUrl?: string;
-}
+import { useState } from 'react';
+import { MoreVertical, Edit, Trash2 } from 'lucide-react';
+import type { Product } from '../types'; 
 
 interface ProductCardProps {
   product: Product;
+  onEdit: (product: Product) => void;
+  onDelete: (id: number) => void;
 }
 
-const ProductCard = ({ product }: ProductCardProps) => {
+const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
+  const [menuOpen, setMenuOpen] = useState(false);
   const BACKEND_URL = 'http://localhost:3000';
   
   const fullImageUrl = product.imageUrl 
@@ -19,19 +17,36 @@ const ProductCard = ({ product }: ProductCardProps) => {
     : 'https://via.placeholder.com/150';
 
   return (
-    <div className="relative group overflow-hidden rounded-lg shadow-lg flex flex-col w-full">
+    <div className="relative overflow-hidden rounded-lg shadow-lg flex flex-col w-full">
+      {/* Menu Button (Three Dots) */}
+      <div className="absolute top-2 right-2 z-10">
+        <button onClick={() => setMenuOpen(!menuOpen)} onBlur={() => setTimeout(() => setMenuOpen(false), 150)} className="p-1 bg-white/70 rounded-full hover:bg-white">
+          <MoreVertical size={20} />
+        </button>
+        {menuOpen && (
+          <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1">
+            <button
+              onClick={() => onEdit(product)}
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+            >
+              <Edit size={16} className="mr-2" /> Edit
+            </button>
+            <button
+              onClick={() => onDelete(product.id)}
+              className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+            >
+              <Trash2 size={16} className="mr-2" /> Delete
+            </button>
+          </div>
+        )}
+      </div>
+
       <img 
         src={fullImageUrl} 
         alt={product.name} 
         className="w-full h-56 object-cover"
       />
       
-      <div className="absolute inset-0 bg-black bg-opacity-70 flex flex-col justify-center items-center text-white p-4
-                      opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <p className="text-sm text-center mb-2">{product.description || 'No description available.'}</p>
-        <p className="font-bold">Stock: {product.stockQuantity ?? 'N/A'}</p>
-      </div>
-
       <div className="p-4 bg-white flex-grow flex flex-col min-w-0">
         <h3 className="text-lg font-semibold flex-grow">
           {product.name}
