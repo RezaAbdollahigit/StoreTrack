@@ -1,21 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext'; // 1. Import useCart
 import apiClient from '../api/axios';
 import Modal from '../components/Modal';
 import AddCategoryForm from '../components/AddCategoryForm';
 import CategorySection from '../components/CategorySection';
-import AddProductForm from '../components/AddProductForm';
-import OrderSummary from '../components/OrderSummary'; 
+import AddProductForm from '../components/AddProductForm'; 
+import OrderSummary from '../components/OrderSummary';
+import OrderReviewModal from '../components/OrderReviewModal'; // 2. Import the new modal
 import { PlusCircle } from 'lucide-react';
 import type { Category, Product } from '../types';
 
 export default function DashboardPage() {
   const { logout } = useAuth();
+  const { cartItems, clearCart } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCategoryModalOpen, setCategoryModalOpen] = useState(false);
   const [isProductModalOpen, setProductModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
+
+    const [isReviewModalOpen, setReviewModalOpen] = useState(false);
 
   const fetchCategoriesAndProducts = async () => {
     setLoading(true);
@@ -55,6 +60,30 @@ export default function DashboardPage() {
     setCategories(currentCategories => 
       currentCategories.filter(cat => cat.id !== deletedCategoryId)
     );
+  };
+
+  const handlePlaceOrder = async () => {
+    const customerName = window.prompt("Please enter the customer name for this order:");
+    if (!customerName) {
+      alert("Customer name is required to place an order.");
+      return;
+    }
+
+    const orderData = {
+      customerName,
+      items: cartItems.map(item => ({ productId: item.id, quantity: item.quantity })),
+    };
+
+    try {
+      await apiClient.post('/orders', orderData);
+      alert('Order placed successfully!');
+      clearCart(); // Clear the cart
+      setReviewModalOpen(false); // Close the modal
+      fetchCategoriesAndProducts(); // Refresh data to show updated stock
+    } catch (error: any) {
+      console.error('Failed to place order', error);
+      alert(`Failed to place order: ${error.response?.data?.error || 'An unknown error occurred.'}`);
+    }
   };
 
   const handleFormSuccess = () => {
@@ -106,7 +135,7 @@ export default function DashboardPage() {
       </div>
 
       {/* The OrderSummary component is placed here */}
-      <OrderSummary />
+      <OrderSummary onReviewOrder={() => setReviewModalOpen(true)} />
 
       {/* --- MODALS --- */}
       <Modal isOpen={isCategoryModalOpen} onClose={() => setCategoryModalOpen(false)} title="Add New Category">
@@ -115,6 +144,13 @@ export default function DashboardPage() {
 
       <Modal isOpen={isProductModalOpen} onClose={() => { setProductModalOpen(false); setProductToEdit(undefined); }} title={productToEdit ? "Edit Product" : "Add Product"}>
         <AddProductForm onSuccess={handleFormSuccess} productToEdit={productToEdit} />
+      </Modal>
+      
+      <Modal isOpen={isReviewModalOpen} onClose={() => setReviewModalOpen(false)} title="Review Your Order">
+        <OrderReviewModal 
+          onClose={() => setReviewModalOpen(false)} 
+          onPlaceOrder={handlePlaceOrder} 
+        />
       </Modal>
     </>
   );

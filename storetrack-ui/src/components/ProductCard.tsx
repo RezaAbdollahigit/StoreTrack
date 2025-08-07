@@ -26,7 +26,7 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
           type="button"
           onClick={() => setMenuOpen(!menuOpen)} 
           onBlur={() => setTimeout(() => setMenuOpen(false), 150)} 
-          className="p-1 bg-white/70 rounded-full hover:bg-white"
+          className="p-1 bg-white/70 rounded-full hover:bg-gray-200"
           aria-label="Product options"
         >
           <MoreVertical size={20} />

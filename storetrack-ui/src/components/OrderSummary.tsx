@@ -1,11 +1,14 @@
 import { useCart } from '../context/CartContext';
 import { ShoppingCart } from 'lucide-react';
 
-export default function OrderSummary() {
+interface OrderSummaryProps {
+  onReviewOrder: () => void; 
+}
+
+export default function OrderSummary({ onReviewOrder }: OrderSummaryProps) {
   const { cartItems } = useCart();
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Conditional styling based on whether the cart has items
   const isEmpty = itemCount === 0;
   const containerClasses = isEmpty
     ? 'bg-gray-100 border-gray-300 text-gray-400'
@@ -22,6 +25,7 @@ export default function OrderSummary() {
         </div>
         <button 
           disabled={isEmpty}
+          onClick={onReviewOrder}
           className="px-6 py-2 font-semibold rounded-md bg-white text-indigo-600 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-gray-100"
         >
           Review Order
