@@ -12,7 +12,7 @@ export default function OrderSummary() {
     : 'bg-indigo-600 border-indigo-700 text-white shadow-lg';
 
   return (
-    <div className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl p-4 border-t rounded-t-lg transition-all duration-300 ${containerClasses}`}>
+    <div className={`fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-4xl p-4 border-t rounded-t-lg transition-all duration-300 z-50 ${containerClasses}`}>
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-3">
           <ShoppingCart size={24} />
