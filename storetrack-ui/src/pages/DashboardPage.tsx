@@ -4,7 +4,8 @@ import apiClient from '../api/axios';
 import Modal from '../components/Modal';
 import AddCategoryForm from '../components/AddCategoryForm';
 import CategorySection from '../components/CategorySection';
-import AddProductForm from '../components/AddProductForm'; 
+import AddProductForm from '../components/AddProductForm';
+import OrderSummary from '../components/OrderSummary'; 
 import { PlusCircle } from 'lucide-react';
 import type { Category, Product } from '../types';
 
@@ -64,7 +65,8 @@ export default function DashboardPage() {
 
   return (
     <>
-      <div className="p-8">
+      {/* Added extra padding-bottom (pb-32) to the main container */}
+      <div className="p-8 pb-32"> 
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Dashboard</h1>
           <div className="flex items-center gap-4">
@@ -103,11 +105,15 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* The OrderSummary component is placed here */}
+      <OrderSummary />
+
+      {/* --- MODALS --- */}
       <Modal isOpen={isCategoryModalOpen} onClose={() => setCategoryModalOpen(false)} title="Add New Category">
         <AddCategoryForm onSuccess={handleFormSuccess} />
       </Modal>
 
-      <Modal isOpen={isProductModalOpen} onClose={() => setProductModalOpen(false)} title={productToEdit ? "Edit Product" : "Add Product"}>
+      <Modal isOpen={isProductModalOpen} onClose={() => { setProductModalOpen(false); setProductToEdit(undefined); }} title={productToEdit ? "Edit Product" : "Add Product"}>
         <AddProductForm onSuccess={handleFormSuccess} productToEdit={productToEdit} />
       </Modal>
     </>

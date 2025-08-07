@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { MoreVertical, Edit, Trash2, PlusCircle } from 'lucide-react';
 import type { Product } from '../types';
+import { useAddToCart } from '../hooks/useAddToCart';
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { handleAddToCart } = useAddToCart();
   const BACKEND_URL = 'http://localhost:3000';
 
   const fullImageUrl = product.imageUrl
@@ -17,13 +19,13 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
     : 'https://via.placeholder.com/150';
 
   return (
-    <div className="relative overflow-hidden rounded-lg shadow-lg flex flex-col w-full">
-      {/* Menu Button (Three Dots) */}
-      <div className="absolute top-2 right-2 z-10">
-        <button
+    <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
+      {/* Menu Button (Top Right) */}
+      <div className="absolute top-2 right-2 z-20">
+        <button 
           type="button"
-          onClick={() => setMenuOpen(!menuOpen)}
-          onBlur={() => setTimeout(() => setMenuOpen(false), 150)}
+          onClick={() => setMenuOpen(!menuOpen)} 
+          onBlur={() => setTimeout(() => setMenuOpen(false), 150)} 
           className="p-1 bg-white/70 rounded-full hover:bg-white"
           aria-label="Product options"
         >
@@ -32,12 +34,14 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
         {menuOpen && (
           <div className="absolute right-0 mt-2 w-32 bg-white rounded-md shadow-lg py-1">
             <button
+              type="button"
               onClick={() => onEdit(product)}
               className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
             >
               <Edit size={16} className="mr-2" /> Edit
             </button>
             <button
+              type="button"
               onClick={() => onDelete(product.id)}
               className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
             >
@@ -47,19 +51,42 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
         )}
       </div>
 
+      {/* Image Container */}
       <div className="w-full h-48 overflow-hidden bg-gray-200">
-        <img
-          src={fullImageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover object-center"
+        <img 
+          src={fullImageUrl} 
+          alt={product.name} 
+          className="h-full w-full object-cover object-center"
         />
       </div>
-
-      <div className="p-4 bg-white flex-grow flex flex-col min-w-0">
-        <h3 className="text-lg font-semibold flex-grow">
+      
+      {/* Text content container */}
+      <div className="p-4 flex flex-col flex-grow">
+        <h3 className="text-lg font-semibold text-gray-800">
           {product.name}
         </h3>
-        <p className="text-gray-600 mt-2">${Number(product.price).toLocaleString()}</p>
+        <div className="flex-grow" />
+        {/* Price and Stock Container */}
+        <div className="mt-2 flex justify-between items-center">
+          <p className="text-gray-800 font-semibold">
+            ${Number(product.price).toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-500">
+            Stock: <span className="font-medium text-gray-700">{product.stockQuantity}</span>
+          </p>
+        </div>
+      </div>
+
+      {/* Plus Button (Top Left) */}
+      <div className="absolute top-2 left-2 z-10">
+        <button
+          type="button"
+          onClick={() => handleAddToCart(product)}
+          className="p-2 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-transform transform hover:scale-110"
+          aria-label={`Add ${product.name} to order`}
+        >
+          <PlusCircle size={24} />
+        </button>
       </div>
     </div>
   );
