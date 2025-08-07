@@ -47,11 +47,11 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
         )}
       </div>
 
-      <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden bg-gray-200">
+      <div className="w-full h-48 overflow-hidden bg-gray-200">
         <img
           src={fullImageUrl}
           alt={product.name}
-          className="h-full w-full object-cover object-center" // Use object-cover here
+          className="w-full h-full object-cover object-center"
         />
       </div>
 

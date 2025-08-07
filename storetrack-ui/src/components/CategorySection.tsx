@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import Modal from './Modal';
 import AddProductForm from './AddProductForm';
-import ProductCard from './ProductCard'; 
-import apiClient from '../api/axios'; 
+import ProductCard from './ProductCard';
+import apiClient from '../api/axios';
 import { deleteCategory } from '../api/categories';
 import type { Category, Product } from '../types';
 
@@ -14,12 +14,12 @@ interface CategorySectionProps {
   onDataChange: () => void;
 }
 
-export default function CategorySection({ 
-  category, 
-  onDeleteSuccess, 
-  onEditProduct, 
+export default function CategorySection({
+  category,
+  onDeleteSuccess,
+  onEditProduct,
   onDeleteProduct,
-  onDataChange 
+  onDataChange
 }: CategorySectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
@@ -69,15 +69,15 @@ export default function CategorySection({
             </button>
           </div>
         </div>
-        
+
         {/* --- PRODUCT LIST SECTION --- */}
         <div className="bg-gray-50 rounded-lg p-4">
-          <div className="flex space-x-6 overflow-x-auto">
+          <div className="flex flex-nowrap items-start space-x-6 overflow-x-auto">
             {products.length > 0 ? (
               products.map(product => (
-                <div key={product.id} className="w-64 flex-shrink-0">
-                  <ProductCard 
-                    product={product} 
+                <div key={product.id} className="w-70 flex-shrink-0">
+                  <ProductCard
+                    product={product}
                     onEdit={onEditProduct}
                     onDelete={onDeleteProduct}
                   />
@@ -96,7 +96,7 @@ export default function CategorySection({
         <AddProductForm
           onSuccess={() => {
             setIsModalOpen(false);
-            fetchProducts(); 
+            fetchProducts();
             onDataChange();
           }}
           defaultCategoryId={category.id}
