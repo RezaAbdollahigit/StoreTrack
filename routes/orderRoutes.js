@@ -1,6 +1,6 @@
 const express = require('express');
-const { Op, sequelize } = require('sequelize');
-const { Order, OrderItem, Product, StockMovement } = require('../models');
+const { Op } = require('sequelize');
+const { Order, OrderItem, Product, StockMovement, sequelize } = require('../models'); 
 const router = express.Router();
 
 // API route for creating a new order
