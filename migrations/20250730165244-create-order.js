@@ -16,7 +16,9 @@ module.exports = {
         type: Sequelize.DECIMAL
       },
       status: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        defaultValue: 'Pending'
       },
       createdAt: {
         allowNull: false,

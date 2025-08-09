@@ -132,7 +132,7 @@ router.get('/', async (req, res) => {
 });
 
 // API route for updating an order's status
-router.patch('/:id', async (req, res) => {
+router.patch('/:id/status', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
 
@@ -140,6 +140,10 @@ router.patch('/:id', async (req, res) => {
     const order = await Order.findByPk(id);
     if (!order) {
       return res.status(404).json({ error: 'Order not found.' });
+    }
+    
+    if (status !== 'Waiting' && status !== 'Sent') {
+        return res.status(400).json({ error: 'Invalid status provided.' });
     }
 
     order.status = status;
