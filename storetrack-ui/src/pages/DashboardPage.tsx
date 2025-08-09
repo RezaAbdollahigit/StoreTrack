@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import apiClient from '../api/axios';
@@ -36,18 +37,18 @@ export default function DashboardPage() {
   useEffect(() => {
     fetchCategoriesAndProducts();
   }, []);
-  
+
   const handleEditProduct = (product: Product) => {
     setProductToEdit(product);
     setProductModalOpen(true);
   };
-  
+
   const handleDeleteProduct = async (id: number) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         await apiClient.delete(`/products/${id}`);
         alert('Product deleted successfully.');
-        fetchCategoriesAndProducts(); 
+        fetchCategoriesAndProducts();
       } catch (error) {
         console.error('Failed to delete product', error);
         alert('Failed to delete product.');
@@ -56,12 +57,11 @@ export default function DashboardPage() {
   };
 
   const handleCategoryDeleted = (deletedCategoryId: number) => {
-    setCategories(currentCategories => 
+    setCategories(currentCategories =>
       currentCategories.filter(cat => cat.id !== deletedCategoryId)
     );
   };
 
-  // === این تابع به طور کامل اصلاح شده است ===
   const handlePlaceOrder = async (customerName: string) => {
     if (!customerName.trim()) {
       alert("Customer name is required.");
@@ -70,10 +70,10 @@ export default function DashboardPage() {
 
     const orderData = {
       customerName,
-      items: cartItems.map(item => ({ 
-        productId: item.id, 
+      items: cartItems.map(item => ({
+        productId: item.id,
         quantity: item.quantity,
-        price: item.price // ارسال قیمت برای ثبت دقیق‌تر
+        price: item.price
       })),
     };
 
@@ -82,10 +82,9 @@ export default function DashboardPage() {
       alert('Order placed successfully!');
       clearCart();
       setReviewModalOpen(false);
-      fetchCategoriesAndProducts(); // رفرش کردن داده‌ها برای نمایش موجودی جدید
+      fetchCategoriesAndProducts();
     } catch (error: any) {
       console.error('Failed to place order', error);
-      // نمایش پیام خطای دقیق‌تری که از سرور می‌آید
       alert(`Failed to place order: ${error.response?.data?.error || 'An unknown error occurred.'}`);
     }
   };
@@ -93,47 +92,55 @@ export default function DashboardPage() {
   const handleFormSuccess = () => {
     setProductModalOpen(false);
     setCategoryModalOpen(false);
-    fetchCategoriesAndProducts(); 
+    fetchCategoriesAndProducts();
   };
 
   return (
     <>
-      <div className="p-8 pb-32"> 
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Dashboard</h1>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setCategoryModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
-            >
-              <PlusCircle size={20} />
-              Add Category
-            </button>
-            <button onClick={logout} className="px-4 py-2 font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
-              Log Out
-            </button>
+      <div>
+        <div className="sticky top-0 z-30 bg-white shadow p-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <div className="flex items-center gap-4">
+              <Link to="/orders" className="px-4 py-2 font-medium rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300">
+                Orders
+              </Link>
+              <button
+                onClick={() => setCategoryModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
+              >
+                <PlusCircle size={20} />
+                Add Category
+              </button>
+              <button onClick={logout} className="px-4 py-2 font-medium rounded-md bg-red-500 text-white hover:bg-red-600">
+                Log Out
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow">
-          {loading ? <p>Loading categories...</p> : (
-            <div>
-              {categories.length === 0 ? (
-                <p>No categories found. Click "Add Category" to get started.</p>
-              ) : (
-                categories.map(category => (
-                  <CategorySection 
-                    key={category.id} 
-                    category={category}
-                    onEditProduct={handleEditProduct}
-                    onDeleteProduct={handleDeleteProduct}
-                    onDataChange={fetchCategoriesAndProducts}
-                    onDeleteSuccess={handleCategoryDeleted}
-                  />
-                ))
-              )}
-            </div>
-          )}
+        {/* --- Page Content --- */}
+        <div className="p-8 pt-0 pb-32">
+          <div className="bg-white p-6 rounded-lg shadow">
+            {loading ? <p>Loading categories...</p> : (
+              <div>
+                {categories.length === 0 ? (
+                  <p>No categories found. Click "Add Category" to get started.</p>
+                ) : (
+                  categories.map(category => (
+                    <CategorySection
+                      key={category.id}
+                      category={category}
+                      onEditProduct={handleEditProduct}
+                      onDeleteProduct={handleDeleteProduct}
+                      onDataChange={fetchCategoriesAndProducts}
+                      onDeleteSuccess={handleCategoryDeleted}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -147,11 +154,11 @@ export default function DashboardPage() {
       <Modal isOpen={isProductModalOpen} onClose={() => { setProductModalOpen(false); setProductToEdit(undefined); }} title={productToEdit ? "Edit Product" : "Add Product"}>
         <AddProductForm onSuccess={handleFormSuccess} productToEdit={productToEdit} />
       </Modal>
-      
+
       <Modal isOpen={isReviewModalOpen} onClose={() => setReviewModalOpen(false)} title="Review Your Order">
-        <OrderReviewModal 
-          onClose={() => setReviewModalOpen(false)} 
-          onPlaceOrder={handlePlaceOrder} 
+        <OrderReviewModal
+          onClose={() => setReviewModalOpen(false)}
+          onPlaceOrder={handlePlaceOrder}
         />
       </Modal>
     </>
