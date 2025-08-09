@@ -102,7 +102,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <div className="flex items-center gap-4">
-              <Link to="/orders" className="px-4 py-2 font-medium rounded-md bg-gray-200 text-gray-800 hover:bg-gray-300">
+              <Link to="/orders" className="px-4 py-2 font-medium rounded-md bg-indigo-600 text-white hover:bg-indigo-700">
                 Orders
               </Link>
               <button

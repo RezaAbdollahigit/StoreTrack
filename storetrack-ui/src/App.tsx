@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
+import OrdersPage from './pages/OrdersPage';
 
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -25,6 +26,10 @@ export default function App() {
           <Route 
             path="/dashboard" 
             element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} 
+          />
+          <Route 
+            path="/orders" 
+            element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} 
           />
         </Routes>
       </main>

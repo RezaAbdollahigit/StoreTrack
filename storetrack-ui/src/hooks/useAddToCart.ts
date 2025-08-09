@@ -24,10 +24,7 @@ export const useAddToCart = () => {
       return;
     }
 
-    // --- Add to Cart ---
-    // We create a temporary product object with the desired quantity
-    const productToAdd = { ...product, quantity }; 
-    addToCart(productToAdd);
+    addToCart(product, quantity); 
     alert(`${quantity} unit(s) of "${product.name}" added to the cart.`);
   };
 
