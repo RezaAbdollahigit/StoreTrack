@@ -23,14 +23,14 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [openOrderId, setOpenOrderId] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState(''); 
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
       try {
         const response = await apiClient.get('/orders', {
-          params: { search: searchTerm || undefined } 
+          params: { search: searchTerm || undefined }
         });
         setOrders(response.data);
       } catch (error) {
@@ -50,7 +50,7 @@ export default function OrdersPage() {
       clearTimeout(debounceTimeout);
       clearInterval(intervalId);
     };
-  }, [searchTerm]); 
+  }, [searchTerm]);
 
   const handleCancelOrder = async (orderId: number) => {
     if (window.confirm('Are you sure you want to cancel this order?')) {
@@ -98,12 +98,12 @@ export default function OrdersPage() {
 
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <div className="p-4 border-b">
-          <div className="grid grid-cols-6 gap-4 font-semibold text-left items-center">
+          <div className="grid grid-cols-10 gap-4 font-semibold text-left">
             <span className="col-span-1">Order ID</span>
-            <span className="col-span-2">Customer</span>
-            <span className="col-span-1">Order Date</span>
+            <span className="col-span-3">Customer</span>
+            <span className="col-span-2">Order Date</span>
             <span className="col-span-1">Status</span>
-            <span className="col-span-1 text-right">Total Amount</span>
+            <span className="col-span-2 text-right">Total Amount</span>
             <span className="col-span-1 text-center">Actions</span>
           </div>
         </div>
@@ -113,13 +113,13 @@ export default function OrdersPage() {
               <div key={order.id} className="border-b">
                 <div 
                   onClick={() => setOpenOrderId(openOrderId === order.id ? null : order.id)} 
-                  className="grid grid-cols-6 gap-4 p-4 text-left items-center hover:bg-gray-50 cursor-pointer"
+                  className="grid grid-cols-10 gap-4 p-4 text-left items-center hover:bg-gray-50 cursor-pointer"
                 >
                   <span className="font-mono text-gray-700">#{order.id}</span>
-                  <span className="col-span-2">{order.customerName}</span>
-                  <span className="col-span-1">{new Date(order.createdAt).toLocaleDateString()}</span>
+                  <span className="col-span-3">{order.customerName}</span>
+                  <span className="col-span-2">{new Date(order.createdAt).toLocaleDateString()}</span>
                   <span className="col-span-1">{getStatusBadge(order.status)}</span>
-                  <span className="col-span-1 text-right font-mono">${Number(order.totalAmount).toLocaleString()}</span>
+                  <span className="col-span-2 text-right font-mono">${Number(order.totalAmount).toLocaleString()}</span>
                   <div className="col-span-1 text-center">
                     {order.status === 'Pending' && (
                       <button 
@@ -136,7 +136,7 @@ export default function OrdersPage() {
                   <div className="p-4 bg-gray-100">
                     <h4 className="font-bold mb-2">Order Details:</h4>
                     <ul className="space-y-2">
-                      {order.items?.map(item => (
+                      {order.items?.map((item: OrderItem) => (
                         <li key={item.product.id} className="flex justify-between w-full sm:w-72">
                           <span>{item.product.name} (x{item.quantity})</span>
                           <span>${(Number(item.product.price) * item.quantity).toLocaleString()}</span>
