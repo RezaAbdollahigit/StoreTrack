@@ -4,7 +4,7 @@ import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import OrdersPage from './pages/OrdersPage';
-
+import ProductsPage from './pages/ProductsPage'; // صفحه جدید را وارد می‌کنیم
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -18,7 +18,7 @@ export default function App() {
     <Router>
       <main>
         <Routes>
-          <Route path="/" element={<LandingPage />} /> {/* Landing Page is the default */}
+          <Route path="/" element={<LandingPage />} />
           <Route 
             path="/auth" 
             element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />} 
@@ -30,6 +30,11 @@ export default function App() {
           <Route 
             path="/orders" 
             element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} 
+          />
+          {/* مسیر جدید برای صفحه محصولات در اینجا اضافه شده است */}
+          <Route 
+            path="/products" 
+            element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} 
           />
         </Routes>
       </main>
