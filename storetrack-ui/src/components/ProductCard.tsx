@@ -54,11 +54,11 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
       </div>
 
       {/* Image Container */}
-      <div className="w-full h-48 overflow-hidden bg-gray-200">
+      <div className="w-full h-48 overflow-hidden bg-white">
         <img 
           src={fullImageUrl} 
           alt={product.name} 
-          className="h-full w-full object-cover object-center"
+          className="h-full w-full object-contain object-center"
         />
       </div>
       
