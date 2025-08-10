@@ -4,7 +4,8 @@ import AuthPage from './pages/AuthPage';
 import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import OrdersPage from './pages/OrdersPage';
-import ProductsPage from './pages/ProductsPage'; // صفحه جدید را وارد می‌کنیم
+import ProductsPage from './pages/ProductsPage';
+import { Toaster } from 'react-hot-toast'; 
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -16,6 +17,8 @@ export default function App() {
 
   return (
     <Router>
+      <Toaster position="top-center" reverseOrder={false} />
+      
       <main>
         <Routes>
           <Route path="/" element={<LandingPage />} />
@@ -31,7 +34,6 @@ export default function App() {
             path="/orders" 
             element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} 
           />
-          {/* مسیر جدید برای صفحه محصولات در اینجا اضافه شده است */}
           <Route 
             path="/products" 
             element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} 

@@ -46,18 +46,26 @@ export default function DashboardPage() {
 
       if (lowStockProducts.length > 0) {
         toast.error((t) => (
-          <div className="text-sm">
-            <p className="font-bold mb-2">Low Stock Warning!</p>
-            <ul className="list-disc list-inside">
-              {lowStockProducts.map(p => (
-                <li key={p.id}>
-                  {p.name}: <span className="font-semibold">{p.stockQuantity} left</span>
-                </li>
-              ))}
-            </ul>
+          <div className="flex items-start justify-between w-full">
+            <div className="text-sm">
+              <p className="font-bold mb-2">Low Stock Warning!</p>
+              <ul className="list-disc list-inside">
+                {lowStockProducts.map(p => (
+                  <li key={p.id}>
+                    {p.name}: <span className="font-semibold">{p.stockQuantity} left</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <button
+              onClick={() => toast.dismiss(t.id)}
+              className="ml-4 text-gray-500 hover:text-gray-800"
+            >
+              &#x2715; 
+            </button>
           </div>
         ), {
-          duration: 6000, 
+          duration: 6000,
         });
       }
 
@@ -67,6 +75,7 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchAllData();

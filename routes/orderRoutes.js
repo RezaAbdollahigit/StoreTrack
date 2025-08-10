@@ -115,26 +115,49 @@ router.patch('/:id/status', async (req, res) => {
     return res.status(400).json({ error: 'Invalid status provided.' });
   }
 
+  const t = await sequelize.transaction(); 
   try {
-    const order = await Order.findByPk(id);
+    const order = await Order.findByPk(id, { transaction: t });
     if (!order) {
+      await t.rollback();
       return res.status(404).json({ error: 'Order not found.' });
     }
     
     if (order.status !== 'Pending' && status === 'Cancelled') {
+        await t.rollback();
         return res.status(400).json({ error: 'Only pending orders can be cancelled.' });
     }
 
+    if (status === 'Cancelled' && order.status === 'Pending') {
+      const itemsToReturn = await OrderItem.findAll({ where: { orderId: order.id }, transaction: t });
+
+      for (const item of itemsToReturn) {
+        await Product.increment('stockQuantity', {
+          by: item.quantity,
+          where: { id: item.productId },
+          transaction: t
+        });
+
+        await StockMovement.create({
+          productId: item.productId,
+          quantityChange: item.quantity, 
+          reason: `Return from cancelled order #${order.id}`
+        }, { transaction: t });
+      }
+    }
+
     order.status = status;
-    await order.save();
+    await order.save({ transaction: t });
+    
+    await t.commit(); 
 
     return res.json(order);
   } catch (error) {
+    await t.rollback();
     console.error('Error updating order status:', error);
     return res.status(500).json({ error: 'An error occurred on the server.' });
   }
 });
-
 
 // Api route for deleting an order by id
 router.delete('/:id', async (req, res) => {
