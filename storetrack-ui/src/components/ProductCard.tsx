@@ -18,6 +18,8 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
     ? `${BACKEND_URL}${product.imageUrl}`
     : 'https://via.placeholder.com/150';
 
+  const isLowStock = product.stockQuantity < 10;
+
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-lg border border-gray-200 bg-white">
       {/* Menu Button (Top Right) */}
@@ -71,9 +73,15 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
           <p className="text-gray-800 font-semibold">
             ${Number(product.price).toLocaleString()}
           </p>
-          <p className="text-sm text-gray-500">
-            Stock: <span className="font-medium text-gray-700">{product.stockQuantity}</span>
-          </p>
+          <div className="text-sm text-gray-500">
+            {isLowStock ? (
+              <span className="font-bold text-red-500">Low Stock</span>
+            ) : (
+              <span>
+                Stock: <span className="font-medium text-gray-700">{product.stockQuantity}</span>
+              </span>
+            )}
+          </div>
         </div>
       </div>
 

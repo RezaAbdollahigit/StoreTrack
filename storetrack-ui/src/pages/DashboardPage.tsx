@@ -11,6 +11,7 @@ import OrderReviewModal from '../components/OrderReviewModal';
 import { PlusCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Category, Product } from '../types';
+import toast from 'react-hot-toast'; 
 
 export default function DashboardPage() {
   const { logout } = useAuth();
@@ -35,8 +36,31 @@ export default function DashboardPage() {
         apiClient.get('/categories'),
         apiClient.get('/products')
       ]);
+      const productsData: Product[] = productsRes.data;
       setCategories(categoriesRes.data);
-      setAllProducts(productsRes.data);
+      setAllProducts(productsData);
+
+      const lowStockProducts = productsData.filter(
+        (p) => p.stockQuantity > 0 && p.stockQuantity < 10
+      );
+
+      if (lowStockProducts.length > 0) {
+        toast.error((t) => (
+          <div className="text-sm">
+            <p className="font-bold mb-2">Low Stock Warning!</p>
+            <ul className="list-disc list-inside">
+              {lowStockProducts.map(p => (
+                <li key={p.id}>
+                  {p.name}: <span className="font-semibold">{p.stockQuantity} left</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ), {
+          duration: 6000, 
+        });
+      }
+
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
