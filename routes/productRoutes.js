@@ -31,8 +31,9 @@ router.post('/', upload.single('image'), async (req, res) => {
 // GET /api/products - Get all products with filtering
 router.get('/', async (req, res) => {
   try {
-    const { categoryId, search } = req.query;
+    const { categoryId, search, minPrice, maxPrice } = req.query;
     const whereClause = {};
+
     if (categoryId) {
       whereClause.categoryId = categoryId;
     }
@@ -42,6 +43,22 @@ router.get('/', async (req, res) => {
         { description: { [Op.iLike]: `%${search}%` } }
       ];
     }
+
+    // price range logic
+    if (minPrice && maxPrice) {
+      whereClause.price = {
+        [Op.between]: [minPrice, maxPrice]
+      };
+    } else if (minPrice) {
+      whereClause.price = {
+        [Op.gte]: minPrice // gte = Greater than or equal to
+      };
+    } else if (maxPrice) {
+      whereClause.price = {
+        [Op.lte]: maxPrice // lte = Less than or equal to
+      };
+    }
+
     const products = await Product.findAll({
       where: whereClause,
       include: 'category'

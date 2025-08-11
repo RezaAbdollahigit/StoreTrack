@@ -8,6 +8,7 @@ import CategorySection from '../components/CategorySection';
 import AddProductForm from '../components/AddProductForm';
 import OrderSummary from '../components/OrderSummary';
 import OrderReviewModal from '../components/OrderReviewModal';
+import PriceFilterModal from '../components/PriceFilterModal';
 import { PlusCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Category, Product } from '../types';
@@ -29,12 +30,23 @@ export default function DashboardPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
 
+  const [isPriceModalOpen, setPriceModalOpen] = useState(false);
+  const [priceRange, setPriceRange] = useState<{ min?: number, max?: number }>({});
+
   const fetchAllData = async () => {
     setLoading(true);
     try {
       const [categoriesRes, productsRes] = await Promise.all([
         apiClient.get('/categories'),
-        apiClient.get('/products')
+        // Pass all filter parameters to the products endpoint
+        apiClient.get('/products', {
+          params: {
+            minPrice: priceRange.min,
+            maxPrice: priceRange.max,
+            search: searchTerm || undefined,
+            categoryId: selectedCategory || undefined
+          }
+        })
       ]);
       const productsData: Product[] = productsRes.data;
       setCategories(categoriesRes.data);
@@ -81,7 +93,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchAllData();
-  }, []);
+  }, [priceRange]);
 
   const filteredCategories = useMemo(() => {
     let filteredProducts = allProducts;
@@ -203,11 +215,17 @@ export default function DashboardPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full px-4 py-2 border rounded-md"
             />
+            <button
+              onClick={() => setPriceModalOpen(true)}
+              className="px-4 py-2 border rounded-md whitespace-nowrap bg-gray-200 hover:bg-gray-300"
+            >
+              Filter Price
+            </button>
             <select
               aria-label="Category"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-4 py-2 border rounded-md"
+              className="px-4 py-2 border rounded-md hover:bg-gray-300"
             >
               <option value="">All Categories</option>
               {categories.map(cat => (
@@ -252,6 +270,12 @@ export default function DashboardPage() {
         <OrderReviewModal
           onClose={() => setReviewModalOpen(false)}
           onPlaceOrder={handlePlaceOrder}
+        />
+      </Modal>
+      <Modal isOpen={isPriceModalOpen} onClose={() => setPriceModalOpen(false)} title="Filter by Price Range">
+        <PriceFilterModal
+          onClose={() => setPriceModalOpen(false)}
+          onApply={(range) => setPriceRange(range)}
         />
       </Modal>
     </>
