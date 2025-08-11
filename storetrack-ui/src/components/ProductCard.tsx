@@ -75,7 +75,7 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
           </p>
           <div className="text-sm text-gray-500">
             {isLowStock ? (
-              <span className="font-bold text-red-500">Low Stock</span>
+              <span className="font-bold text-red-500">Low Stock: {product.stockQuantity}</span>
             ) : (
               <span>
                 Stock: <span className="font-medium text-gray-700">{product.stockQuantity}</span>

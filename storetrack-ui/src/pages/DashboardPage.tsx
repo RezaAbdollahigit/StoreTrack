@@ -45,6 +45,7 @@ export default function DashboardPage() {
       );
 
       if (lowStockProducts.length > 0) {
+        toast.dismiss('low-stock-toast'); // This is to prevent duplicates on fast re-renders
         toast.error((t) => (
           <div className="flex items-start justify-between w-full">
             <div className="text-sm">
@@ -65,6 +66,7 @@ export default function DashboardPage() {
             </button>
           </div>
         ), {
+          id: 'low-stock-toast',
           duration: 6000,
         });
       }
@@ -139,7 +141,7 @@ export default function DashboardPage() {
       alert('Order placed successfully!');
       clearCart();
       setReviewModalOpen(false);
-      fetchAllData();
+      await fetchAllData();
     } catch (error: any) {
       console.error('Failed to place order', error);
       alert(`Failed to place order: ${error.response?.data?.error || 'An unknown error occurred.'}`);
@@ -167,10 +169,12 @@ export default function DashboardPage() {
       <div>
         {/* --- STICKY HEADER --- */}
         <div className="sticky top-0 z-30 bg-white shadow p-4">
-          {/* 1. Added max-width and centering to this div */}
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold">Dashboard</h1> {/* 2. Reduced font size for a smaller header */}
+            <h1 className="text-3xl font-bold">Dashboard</h1>
             <div className="flex items-center gap-4">
+              <Link to="/stock-history" className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-gray-600 text-white hover:bg-gray-700">
+                Stock History
+              </Link>
               <Link to="/orders" className="flex items-center gap-2 px-4 py-2 font-medium rounded-md bg-gray-600 text-white hover:bg-gray-700">
                 <FileText size={20} />
                 Orders List
@@ -190,7 +194,7 @@ export default function DashboardPage() {
         </div>
 
         {/* --- PAGE CONTENT --- */}
-        <div className="px-8 py-2 pb-32"> {/* 3. Restored top padding here */}
+        <div className="px-8 py-2 pb-32">
           <div className="flex gap-4 mb-6 p-4 bg-white rounded-lg shadow">
             <input
               type="text"
@@ -200,6 +204,7 @@ export default function DashboardPage() {
               className="w-full px-4 py-2 border rounded-md"
             />
             <select
+              aria-label="Category"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="px-4 py-2 border rounded-md"

@@ -1,8 +1,10 @@
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useEffect } from 'react';
 import apiClient from '../api/axios';
 import type { Product } from '../types';
+import toast from 'react-hot-toast';
 
 const ProductSchema = z.object({
   name: z.string().min(3, 'Name must be at least 3 characters.'),
@@ -24,7 +26,9 @@ interface AddProductFormProps {
 export default function AddProductForm({ onSuccess, productToEdit, defaultCategoryId }: AddProductFormProps) {
   const isEditMode = !!productToEdit;
 
-  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = useForm<ProductFormValues>();
+  const { register, handleSubmit, formState: { errors, isSubmitting }, setValue } = useForm<ProductFormValues>({
+    resolver: zodResolver(ProductSchema),
+  });
 
   useEffect(() => {
     if (isEditMode && productToEdit) {
@@ -40,6 +44,7 @@ export default function AddProductForm({ onSuccess, productToEdit, defaultCatego
 
   const onSubmit = async (data: ProductFormValues) => {
     const formData = new FormData();
+    // Append all form data
     Object.keys(data).forEach(key => {
         if (key === 'image' && data.image && data.image.length > 0) {
             formData.append('image', data.image[0]);
@@ -49,21 +54,21 @@ export default function AddProductForm({ onSuccess, productToEdit, defaultCatego
     });
 
     try {
-      if (isEditMode) {
-        await apiClient.put(`/products/${productToEdit!.id}`, formData, {
+      if (isEditMode && productToEdit) {
+        await apiClient.put(`/products/${productToEdit.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        alert('Product updated successfully!');
+        toast.success('Product updated successfully!');
       } else {
         await apiClient.post('/products', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
-        alert('Product created successfully!');
+        toast.success('Product created successfully!');
       }
       onSuccess();
     } catch (error) {
       console.error('Failed to save product', error);
-      alert('Failed to save product. Please try again.');
+      toast.error('Failed to save product. Please try again.');
     }
   };
 

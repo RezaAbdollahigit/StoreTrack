@@ -5,7 +5,8 @@ import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import OrdersPage from './pages/OrdersPage';
 import ProductsPage from './pages/ProductsPage';
-import { Toaster } from 'react-hot-toast'; 
+import StockHistoryPage from './pages/StockHistoryPage';
+import { Toaster } from 'react-hot-toast';
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
   const { isAuthenticated } = useAuth();
@@ -18,25 +19,29 @@ export default function App() {
   return (
     <Router>
       <Toaster position="top-center" reverseOrder={false} />
-      
+
       <main>
         <Routes>
           <Route path="/" element={<LandingPage />} />
-          <Route 
-            path="/auth" 
-            element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />} 
+          <Route
+            path="/auth"
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <AuthPage />}
           />
-          <Route 
-            path="/dashboard" 
-            element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} 
+          <Route
+            path="/dashboard"
+            element={<ProtectedRoute><DashboardPage /></ProtectedRoute>}
           />
-          <Route 
-            path="/orders" 
-            element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} 
+          <Route
+            path="/orders"
+            element={<ProtectedRoute><OrdersPage /></ProtectedRoute>}
           />
-          <Route 
-            path="/products" 
-            element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} 
+          <Route
+            path="/products"
+            element={<ProtectedRoute><ProductsPage /></ProtectedRoute>}
+          />
+          <Route
+            path="/stock-history"
+            element={<ProtectedRoute><StockHistoryPage /></ProtectedRoute>}
           />
         </Routes>
       </main>
