@@ -1,5 +1,5 @@
 const express = require('express');
-const { Product, sequelize, Category } = require('../models');
+const { Product, sequelize, Category, StockMovement } = require('../models');
 const { Op } = require('sequelize');
 const multer = require('multer');
 const path = require('path');
@@ -28,39 +28,10 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-router.put('/:id', upload.single('image'), async (req, res) => {
-  const { id } = req.params;
-  const { name, description, price, stockQuantity, categoryId } = req.body;
-  try {
-    const product = await Product.findByPk(id);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found.' });
-    }
-    if (req.file && product.imageUrl) {
-      const oldImagePath = path.join(__dirname, '..', product.imageUrl);
-      if (fs.existsSync(oldImagePath)) {
-        fs.unlinkSync(oldImagePath);
-      }
-    }
-    product.name = name || product.name;
-    product.description = description || product.description;
-    product.price = price || product.price;
-    product.stockQuantity = stockQuantity || product.stockQuantity;
-    product.categoryId = categoryId || product.categoryId;
-    if (req.file) {
-      product.imageUrl = `/public/uploads/${req.file.filename}`;
-    }
-    await product.save();
-    return res.json(product);
-  } catch (error) {
-    console.error('Error updating product:', error);
-    return res.status(500).json({ error: 'An error occurred on the server.' });
-  }
-});
-
+// GET /api/products - Get all products with filtering
 router.get('/', async (req, res) => {
   try {
-    const { categoryId, search } = req.query; 
+    const { categoryId, search } = req.query;
     const whereClause = {};
     if (categoryId) {
       whereClause.categoryId = categoryId;
@@ -78,6 +49,69 @@ router.get('/', async (req, res) => {
     return res.json(products);
   } catch (error) {
     console.error('Error fetching products:', error);
+    return res.status(500).json({ error: 'An error occurred on the server.' });
+  }
+});
+
+
+router.put('/:id', upload.single('image'), async (req, res) => {
+  const { id } = req.params;
+  const { name, description, price, stockQuantity, categoryId, stockChangeReason } = req.body;
+
+  const t = await sequelize.transaction();
+  try {
+    const product = await Product.findByPk(id, { transaction: t });
+    if (!product) {
+      await t.rollback();
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+
+    // If a new file uploaded, delete old image file (if exists)
+    if (req.file && product.imageUrl) {
+      const relPath = product.imageUrl.replace(/^\//, '');
+      const oldImagePath = path.join(__dirname, '..', relPath);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+    // Parse incoming numeric values correctly
+    const newPrice = price !== undefined ? Number(price) : product.price;
+    const newStock = stockQuantity !== undefined && stockQuantity !== '' ? Number(stockQuantity) : product.stockQuantity;
+    const newCategoryId = categoryId !== undefined && categoryId !== '' ? Number(categoryId) : product.categoryId;
+
+    // compute delta
+    const oldStock = Number(product.stockQuantity ?? 0);
+    const delta = newStock - oldStock;
+
+    // update fields
+    product.name = name !== undefined && name !== '' ? name : product.name;
+    product.description = description !== undefined ? description : product.description;
+    product.price = Number.isNaN(newPrice) ? product.price : newPrice;
+    product.stockQuantity = Number.isNaN(newStock) ? product.stockQuantity : newStock;
+    product.categoryId = newCategoryId || product.categoryId;
+
+    if (req.file) {
+      product.imageUrl = `/public/uploads/${req.file.filename}`;
+    }
+
+    await product.save({ transaction: t });
+
+    // create stock movement if stock changed
+    if (delta !== 0) {
+      const reason = stockChangeReason || `Manual adjustment (admin)`;
+      await StockMovement.create({
+        quantityChange: delta,
+        reason,
+        productId: product.id
+      }, { transaction: t });
+    }
+
+    await t.commit();
+    return res.json(product);
+  } catch (error) {
+    await t.rollback();
+    console.error('Error updating product:', error);
     return res.status(500).json({ error: 'An error occurred on the server.' });
   }
 });
