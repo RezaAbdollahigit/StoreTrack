@@ -7,9 +7,10 @@ interface ProductCardProps {
   product: Product;
   onEdit: (product: Product) => void;
   onDelete: (id: number) => void;
+  onView: (product: Product) => void; 
 }
 
-const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
+const ProductCard = ({ product, onEdit, onDelete, onView }: ProductCardProps) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { handleAddToCart } = useAddToCart();
   const BACKEND_URL = 'http://localhost:3000';
@@ -53,14 +54,16 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
         )}
       </div>
 
-      {/* Image Container */}
-      <div className="w-full h-48 overflow-hidden bg-white">
+      <button 
+        onClick={() => onView(product)} 
+        className="w-full h-48 overflow-hidden bg-white cursor-pointer"
+      >
         <img 
           src={fullImageUrl} 
           alt={product.name} 
           className="h-full w-full object-contain object-center"
         />
-      </div>
+      </button>
       
       {/* Text content container */}
       <div className="p-4 flex flex-col flex-grow">
@@ -68,7 +71,6 @@ const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
           {product.name}
         </h3>
         <div className="flex-grow" />
-        {/* Price and Stock Container */}
         <div className="mt-2 flex justify-between items-center">
           <p className="text-gray-800 font-semibold">
             ${Number(product.price).toLocaleString()}

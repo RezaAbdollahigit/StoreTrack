@@ -13,6 +13,7 @@ interface CategorySectionProps {
   onDeleteProduct: (id: number) => void;
   onDataChange: () => void;
   onDeleteSuccess: (deletedCategoryId: number) => void;
+  onViewProduct: (product: Product) => void; 
 }
 
 export default function CategorySection({ 
@@ -21,7 +22,8 @@ export default function CategorySection({
   onEditProduct, 
   onDeleteProduct, 
   onDataChange,
-  onDeleteSuccess 
+  onDeleteSuccess,
+  onViewProduct
 }: CategorySectionProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -68,6 +70,7 @@ export default function CategorySection({
                     product={product} 
                     onEdit={onEditProduct}
                     onDelete={onDeleteProduct}
+                    onView={onViewProduct} 
                   />
                 </div>
               ))

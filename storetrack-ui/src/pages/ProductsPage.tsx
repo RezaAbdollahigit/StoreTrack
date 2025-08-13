@@ -154,5 +154,4 @@ const ProductsPage = () => {
   );
 };
 
-// === این خط برای حل مشکل اضافه شده است ===
 export default ProductsPage;

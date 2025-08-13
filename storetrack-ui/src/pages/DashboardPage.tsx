@@ -13,6 +13,7 @@ import { PlusCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Category, Product } from '../types';
 import toast from 'react-hot-toast';
+import ProductDetailView from '../components/ProductDetailView'; 
 
 export default function DashboardPage() {
   const { logout } = useAuth();
@@ -26,6 +27,9 @@ export default function DashboardPage() {
   const [isProductModalOpen, setProductModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<Product | undefined>(undefined);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
+  
+  const [isDetailModalOpen, setDetailModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | undefined>(undefined);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -38,7 +42,6 @@ export default function DashboardPage() {
     try {
       const [categoriesRes, productsRes] = await Promise.all([
         apiClient.get('/categories'),
-        // Pass all filter parameters to the products endpoint
         apiClient.get('/products', {
           params: {
             minPrice: priceRange.min,
@@ -57,7 +60,7 @@ export default function DashboardPage() {
       );
 
       if (lowStockProducts.length > 0) {
-        toast.dismiss('low-stock-toast'); // This is to prevent duplicates on fast re-renders
+        toast.dismiss('low-stock-toast');
         toast.error((t) => (
           <div className="flex items-start justify-between w-full">
             <div className="text-sm">
@@ -89,7 +92,6 @@ export default function DashboardPage() {
       setLoading(false);
     }
   };
-
 
   useEffect(() => {
     fetchAllData();
@@ -130,11 +132,11 @@ export default function DashboardPage() {
     if (window.confirm('Are you sure you want to delete this product?')) {
       try {
         await apiClient.delete(`/products/${id}`);
-        alert('Product deleted successfully.');
+        toast.success('Product deleted successfully.');
         fetchAllData();
       } catch (error) {
         console.error('Failed to delete product', error);
-        alert('Failed to delete product.');
+        toast.error('Failed to delete product.');
       }
     }
   };
@@ -150,13 +152,13 @@ export default function DashboardPage() {
     };
     try {
       await apiClient.post('/orders', orderData);
-      alert('Order placed successfully!');
+      toast.success('Order placed successfully!');
       clearCart();
       setReviewModalOpen(false);
       await fetchAllData();
     } catch (error: any) {
       console.error('Failed to place order', error);
-      alert(`Failed to place order: ${error.response?.data?.error || 'An unknown error occurred.'}`);
+      toast.error(`Failed to place order: ${error.response?.data?.error || 'An unknown error occurred.'}`);
     }
   };
 
@@ -164,7 +166,6 @@ export default function DashboardPage() {
     setCategories(currentCategories =>
       currentCategories.filter(cat => cat.id !== deletedCategoryId)
     );
-    // Also remove the products of the deleted category from the main product list
     setAllProducts(currentProducts =>
       currentProducts.filter(p => p.categoryId !== deletedCategoryId)
     );
@@ -176,10 +177,14 @@ export default function DashboardPage() {
     fetchAllData();
   };
 
+  const handleViewProduct = (product: Product) => {
+    setSelectedProduct(product);
+    setDetailModalOpen(true);
+  };
+
   return (
     <>
       <div>
-        {/* --- STICKY HEADER --- */}
         <div className="sticky top-0 z-30 bg-white shadow p-4">
           <div className="flex justify-between items-center">
             <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -204,8 +209,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* --- PAGE CONTENT --- */}
         <div className="px-8 py-2 pb-32">
           <div className="flex gap-4 mb-6 p-4 bg-white rounded-lg shadow">
             <input
@@ -233,7 +236,6 @@ export default function DashboardPage() {
               ))}
             </select>
           </div>
-
           <div className="bg-white p-6 rounded-lg shadow">
             {loading ? <p className="text-center py-10">Loading...</p> : (
               <div>
@@ -249,6 +251,7 @@ export default function DashboardPage() {
                       onDeleteProduct={handleDeleteProduct}
                       onDataChange={fetchAllData}
                       onDeleteSuccess={handleCategoryDeleted}
+                      onViewProduct={handleViewProduct} 
                     />
                   ))
                 )}
@@ -257,9 +260,7 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
-
       <OrderSummary onReviewOrder={() => setReviewModalOpen(true)} />
-
       <Modal isOpen={isCategoryModalOpen} onClose={() => setCategoryModalOpen(false)} title="Add New Category">
         <AddCategoryForm onSuccess={handleFormSuccess} />
       </Modal>
@@ -277,6 +278,13 @@ export default function DashboardPage() {
           onClose={() => setPriceModalOpen(false)}
           onApply={(range) => setPriceRange(range)}
         />
+      </Modal>
+      <Modal 
+        isOpen={isDetailModalOpen} 
+        onClose={() => setDetailModalOpen(false)} 
+        title={selectedProduct?.name || 'Product Details'}
+      >
+        {selectedProduct && <ProductDetailView product={selectedProduct} />}
       </Modal>
     </>
   );
