@@ -1,4 +1,4 @@
-'use strict';
+'use strict'; // enables strict mode in Node.js (safer JS, e.g. prevents accidental globals).
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {

@@ -50,8 +50,8 @@ router.post('/', async (req, res) => {
     }
     await t.commit();
 
-    // 50-second timer to update status to "Sent"
-    console.log(`Starting 50s timer to ship order #${newOrder.id}...`);
+    // 40-second timer to update status to "Sent"
+    console.log(`Starting 40s timer to ship order #${newOrder.id}...`);
     setTimeout(async () => {
       try {
         const orderToUpdate = await Order.findByPk(newOrder.id);
@@ -62,7 +62,7 @@ router.post('/', async (req, res) => {
       } catch (timerError) {
         console.error(`Failed to auto-ship order #${newOrder.id}`, timerError);
       }
-    }, 40000); // 50 seconds
+    }, 40000); // 40 seconds
 
     return res.status(201).json(newOrder);
   } catch (error) {

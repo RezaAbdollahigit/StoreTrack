@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors');
+const cors = require('cors'); //a crucial security package that allows the frontend application to make requests to the backend server
 const { sequelize } = require('./models');
 const path = require('path'); 
 
