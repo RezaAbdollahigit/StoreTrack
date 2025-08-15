@@ -11,11 +11,11 @@ It features a Node.js backend with a PostgreSQL database and a React frontend fo
 https://github.com/RezaAbdollahigit/StoreTrack
 
 ## Screenshots
-./screenshots/1.png
-./screenshots/2.png
-./screenshots/3.png
-./screenshots/4.png
-./screenshots/5.png
+![Screenshot 1](./screenshots/1.png)
+![Screenshot 2](./screenshots/2.png)
+![Screenshot 3](./screenshots/3.png)
+![Screenshot 4](./screenshots/4.png)
+![Screenshot 5](./screenshots/5.png)
 
 
 ## Features
