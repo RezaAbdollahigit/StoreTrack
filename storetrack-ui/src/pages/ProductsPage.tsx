@@ -104,6 +104,7 @@ const ProductsPage = () => {
           className="w-full px-4 py-2 border rounded-md"
         />
         <select
+          aria-label="Filter by Category"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
           className="px-4 py-2 border rounded-md"
@@ -137,8 +138,8 @@ const ProductsPage = () => {
                   <td className="p-4">${Number(product.price).toLocaleString()}</td>
                   <td className="p-4">{product.stockQuantity}</td>
                   <td className="p-4 flex space-x-2">
-                    <button onClick={() => handleEditClick(product)} className="text-blue-500 hover:text-blue-700"><Edit size={20} /></button>
-                    <button onClick={() => handleDeleteClick(product.id)} className="text-red-500 hover:text-red-700"><Trash2 size={20} /></button>
+                    <button onClick={() => handleEditClick(product)} className="text-blue-500 hover:text-blue-700" aria-label={`Edit ${product.name}`}><Edit size={20} /></button>
+                    <button onClick={() => handleDeleteClick(product.id)} className="text-red-500 hover:text-red-700" aria-label={`Delete ${product.name}`}><Trash2 size={20} /></button>
                   </td>
                 </tr>
               ))
